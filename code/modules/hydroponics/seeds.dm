@@ -6,7 +6,6 @@
 	name = "pack of seeds"
 	icon = 'icons/obj/seeds.dmi'
 	icon_state = "seed" // unknown plant seed - these shouldn't exist in-game
-	flags = FPRINT | TABLEPASS
 	w_class = 1.0 // Makes them pocketable
 	var/plantname = "Plants"
 	var/product	//a type path
@@ -1050,3 +1049,19 @@
 	potency = 20
 	plant_type = 0
 	growthstages = 6
+
+/obj/item/seeds/gatfruit
+	name = "pack of gatfruit seeds"
+	desc = "These seeds grow into .357 revolvers."
+	icon_state = "seed-gatfruit"
+	species = "gatfruit"
+	plantname = "gatfruit"
+	product = /obj/item/weapon/reagent_containers/food/snacks/grown/gatfruit
+	lifespan = 20
+	endurance = 20
+	maturation = 40
+	production = 10
+	yield = 2
+	potency = 60
+	plant_type = 0
+	growthstages = 2

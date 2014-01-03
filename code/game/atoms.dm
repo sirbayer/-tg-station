@@ -1,7 +1,7 @@
 /atom
 	layer = 2
 	var/level = 2
-	var/flags = FPRINT
+	var/flags = null
 	var/list/fingerprints
 	var/list/fingerprintshidden
 	var/fingerprintslast = null
@@ -94,8 +94,8 @@
 /atom/proc/emp_act(var/severity)
 	return
 
-/atom/proc/bullet_act(obj/item/projectile/P)
-	P.on_hit(src,0)
+/atom/proc/bullet_act(obj/item/projectile/P, def_zone)
+	P.on_hit(src, 0, def_zone)
 	. = 0
 
 /atom/proc/in_contents_of(container)//can take class or object instance as argument
@@ -249,8 +249,6 @@ var/list/blood_splatter_icons = list()
 		return 0
 	if(!check_dna_integrity(M))		//check dna is valid and create/setup if necessary
 		return 0					//no dna!
-	if(!(flags & FPRINT))
-		return 0
 	if(!istype(blood_DNA, /list))	//if our list of DNA doesn't exist yet (or isn't a list) initialise it.
 		blood_DNA = list()
 	return
