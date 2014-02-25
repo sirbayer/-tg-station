@@ -75,7 +75,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 //Click to to teleport 9-10 tiles in direction facing.
 /datum/sn_ability/ninjajaunt
 	aname = "Phase Jaunt"
-	adesc = "Utilize VOID-shift tech to randomly teleport to a location you're facing."
+	adesc = "Utilize VOID-shift tech to teleport imprecisely to a location you're facing."
 	acost = 1000
 	ncd = 1
 	var/turf/dest
@@ -176,7 +176,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 This could be a lot better but I'm too tired atm.*/
 /datum/sn_ability/ninjastar
 	aname = "Energy Star"
-	adesc = "Launches an energy star at a random living target."
+	adesc = "Throw an energy star at a random living target."
 	acost = 500
 	ncd = 1
 	var/targets[] = list()//So yo can shoot while yo throw dawg
@@ -203,41 +203,6 @@ This could be a lot better but I'm too tired atm.*/
 		A.yo = targloc.y - curloc.y
 		A.xo = targloc.x - curloc.x
 		A.process()
-
-//=======//ENERGY NET//=======//
-/*Allows the ninja to capture people, I guess.
-Must right click on a mob to activate.*/
-/datum/sn_ability/ninjanet
-	aname = "Energy Net"
-	adesc = "Captures a fallen opponent in a net of energy. Will teleport them to a holding facility after 30 seconds."
-	acost = 2000
-	ncd = 20
-	var/mob/living/carbon/M
-
-/datum/sn_ability/ninjanet/special_check()
-	// INSERT TARGET ACQUISITION
-	if(!M.client)//Monkeys without a client can still step_to() and bypass the net. Also, netting inactive people is lame.
-		return "<span class='alert'>ALERT: No neural pattern detected in target, aborting...</span>"
-	//if(M)//DEBUG
-	if(locate(/obj/effect/energy_net) in M.loc)//Check if they are already being affected by an energy net.
-		return "<span class='alert'>ALERT: Target is already netted.</span>"
-	for(var/turf/T in getline(parent.affecting.loc, M.loc))
-		if(T.density)//Don't want them shooting nets through walls. It's kind of cheesy.
-			return "<span class='alert'>ALERT: Energy net cannot pass solid objects.</span>"
-
-/datum/sn_ability/ninjanet/activate()
-	if (..())
-		spawn(0)
-			parent.affecting.Beam(M,"n_beam",,15)
-		M.anchored = 1//Anchors them so they can't move.
-		parent.affecting.say("Get over here!")
-		var/obj/effect/energy_net/E = new /obj/effect/energy_net(M.loc)
-		E.layer = M.layer+1//To have it appear one layer above the mob.
-		M.visible_message("<span class='danger'>[parent.affecting] caught [M] with an energy net!</span>")
-		E.affecting = M
-		E.master = parent.affecting
-		spawn(0)//Parallel processing.
-			E.process(M)
 
 //=======//ADRENALINE BOOST//=======//
 /*Wakes the user so they are able to do their thing. Also injects a decent dose of radium.

@@ -22,17 +22,6 @@
 		affecting << "<span class='alert'>ALERT: Suit failed to shut down.</span> Ensure all processes have finished and try again."
 	return
 
-/obj/item/clothing/suit/space/space_ninja/proc/spideros()
-	set name = "Display SpiderOS"
-	set desc = "Utilize built-in computer system."
-	set category = "Ninja Equip"
-
-	if(s_control&&!s_busy)
-		display_spideros()
-	else
-		affecting << "<span class='alert'>ALERT: SpiderOS is not responding.</span>"
-	return
-
 /obj/item/clothing/suit/space/space_ninja/proc/stealth()
 	set name = "Toggle Stealth"
 	set desc = "Utilize the internal CLOAK-tech device to activate or deactivate stealth-camo."

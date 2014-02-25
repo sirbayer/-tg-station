@@ -65,7 +65,6 @@
 	set category = "AI Ninja Equip"
 	set src = usr.loc
 
-	display_spideros()
 	return
 
 /obj/item/clothing/suit/space/space_ninja/proc/ai_return_control()

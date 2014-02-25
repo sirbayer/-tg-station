@@ -19,6 +19,38 @@
 	H.mind_initialize()
 	H.equip_space_ninja(1)
 
+//=======//CURRENT GHOST VERB//=======//
+
+/client/proc/send_space_ninja()
+	set category = "Fun"
+	set name = "Spawn Space Ninja"
+	set desc = "Spawns a space ninja for when you need a teenager with attitude."
+	set popup_menu = 0
+
+	if(!holder)
+		src << "Only administrators may use this command."
+		return
+	if(!ticker.mode)
+		alert("The game hasn't started yet!")
+		return
+	if(alert("Are you sure you want to send in a space ninja?",,"Yes","No")=="No")
+		return
+
+	var/mission = copytext(sanitize(input(src, "Please specify which mission the space ninja shall undertake.", "Specify Mission", null) as text|null),1,MAX_MESSAGE_LEN)
+
+	var/client/C = input("Pick character to spawn as the Space Ninja", "Key", "") as null|anything in clients
+	if(!C)
+		return
+
+	var/datum/round_event/ninja/E = new /datum/round_event/ninja()
+	E.key=C.key
+	E.mission=mission
+
+	message_admins("\blue [key_name_admin(key)] has spawned [key_name_admin(C.key)] as a Space Ninja.")
+	log_admin("[key] used Spawn Space Ninja.")
+
+	return
+
 //=======//NINJA CREATION PROCS//=======//
 
 proc/create_ninja_mind(key)
