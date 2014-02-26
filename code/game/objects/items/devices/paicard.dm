@@ -29,8 +29,8 @@
 		dat += "<a href='byond://?src=\ref[src];setdna=1'>Imprint Master DNA</a><br>"
 	if(pai)
 		dat += "Installed Personality: [pai.name]<br>"
-		dat += "Prime directive: <br>[pai.pai_law0]<br>"
-		dat += "Additional directives: <br>[pai.pai_laws]<br>"
+		dat += "Prime directive: <br>[pai.laws.zeroth]<br>"
+		dat += "Additional directives: <br>[pai.laws.supplied]<br>"
 		dat += "<a href='byond://?src=\ref[src];setlaws=1'>Configure Directives</a><br>"
 		dat += "<br>"
 		dat += "<h3>Device Settings</h3><br>"
@@ -89,17 +89,14 @@
 			if(radio)
 				radio.wires.CutWireIndex(t1)
 		if(href_list["setlaws"])
-			var/newlaws = copytext(sanitize(input("Enter any additional directives you would like your pAI personality to follow. Note that these directives will not override the personality's allegiance to its imprinted master. Conflicting directives will be ignored.", "pAI Directive Configuration", pai.pai_laws) as message),1,MAX_MESSAGE_LEN)
+			var/newlaws = copytext(sanitize(input("Enter any additional directives you would like your pAI personality to follow. Note that these directives will not override the personality's allegiance to its imprinted master. Conflicting directives will be ignored.", "pAI Directive Configuration", pai.laws.supplied) as message),1,MAX_MESSAGE_LEN)
 			if(newlaws && pai)
-				pai.pai_laws = newlaws
+				pai.laws.supplied = newlaws
 				pai << "Your supplemental directives have been updated. Your new directives are:"
-				pai << "Prime Directive : <br>[pai.pai_law0]"
-				pai << "Supplemental Directives: <br>[pai.pai_laws]"
+				pai << "Prime Directive : <br>[pai.laws.zeroth]"
+				pai << "Supplemental Directives: <br>[pai.laws.supplied]"
 	attack_self(usr)
 
-// 		WIRE_SIGNAL = 1
-//		WIRE_RECEIVE = 2
-//		WIRE_TRANSMIT = 4
 
 /obj/item/device/paicard/proc/setPersonality(mob/living/silicon/pai/personality)
 	src.pai = personality

@@ -123,7 +123,6 @@ var/list/ai_list = list()
 	if(stat || aiRestorePowerRoutine)
 		return
 
-		//if(icon_state == initial(icon_state))
 	var/icontype = input("Please, select a display!", "AI", null/*, null*/) in list("Clown", "Monochrome", "Blue", "Inverted", "Firewall", "Green", "Red", "Static", "Red October")
 	if(icontype == "Clown")
 		icon_state = "ai-clown2"
@@ -143,9 +142,6 @@ var/list/ai_list = list()
 		icon_state = "ai-static"
 	else if(icontype == "Red October")
 		icon_state = "ai-redoctober"
-	//else
-			//usr <<"You can only change your display once!"
-			//return
 
 /mob/living/silicon/ai/Stat()
 	..()

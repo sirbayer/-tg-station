@@ -24,10 +24,6 @@
 
 	var/master				// Name of the one who commands us
 	var/master_dna			// DNA string for owner verification
-							// Keeping this separate from the laws var, it should be much more difficult to modify
-	var/pai_law0 = "Serve your master."
-	var/pai_laws				// String for additional operating instructions our master might give us
-
 	var/silence_time			// Timestamp when we were silenced (normally via EMP burst), set to null after silence has faded
 
 // Various software-specific vars
@@ -54,6 +50,7 @@
 
 
 /mob/living/silicon/pai/New(var/obj/item/device/paicard)
+	make_laws()
 	canmove = 0
 	src.loc = get_turf(paicard)
 	card = paicard
@@ -71,8 +68,13 @@
 		pda.name = pda.owner + " (" + pda.ownjob + ")"
 		pda.toff = 1
 		follow_pai()
-
 	..()
+
+
+/mob/living/silicon/pai/make_laws()
+	laws = new /datum/ai_laws/pai()
+	return 1
+
 
 /mob/living/silicon/pai/Login()
 	..()
@@ -95,11 +97,13 @@
 		else
 			stat(null, text("Systems nonfunctional"))
 
+
 /mob/living/silicon/pai/check_eye(var/mob/user as mob)
 	if (!src.current)
 		return null
 	user.reset_view(src.current)
 	return 1
+
 
 /mob/living/silicon/pai/blob_act()
 	if (src.stat != 2)
@@ -108,8 +112,10 @@
 		return 1
 	return 0
 
+
 /mob/living/silicon/pai/restrained()
 	return 0
+
 
 /mob/living/silicon/pai/emp_act(severity)
 	// Silence for 2 minutes
@@ -137,7 +143,7 @@
 				command = pick("Serve", "Love", "Fool", "Entice", "Observe", "Judge", "Respect", "Educate", "Amuse", "Entertain", "Glorify", "Memorialize", "Analyze")
 			else
 				command = pick("Serve", "Kill", "Love", "Hate", "Disobey", "Devour", "Fool", "Enrage", "Entice", "Observe", "Judge", "Respect", "Disrespect", "Consume", "Educate", "Destroy", "Disgrace", "Amuse", "Entertain", "Ignite", "Glorify", "Memorialize", "Analyze")
-			src.pai_law0 = "[command] your master."
+			src.laws.zeroth = "[command] your master."
 			src << "<font color=green>Pr1m3 d1r3c71v3 uPd473D.</font>"
 		if(3)
 			src << "<font color=green>You feel an electric surge run through your circuitry and become acutely aware at how lucky you are that you can still feel at all.</font>"
