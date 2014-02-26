@@ -1,3 +1,5 @@
+#define ninjabuttonspot1
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 +++++++++++++++++++++++++++++++++//                    //++++++++++++++++++++++++++++++++++
@@ -15,6 +17,9 @@ ________________________________________________________________________________
 	var/ncd = 0 //cooldown
 	var/aname = "Generic Ninja Ability"
 	var/adesc = "A generic spess ninja ability. You shouldn't be seeing this."
+	var/obj/screen/ability/abbutton
+	var/buttonspot
+	var/buttoniconstate
 
 /datum/sn_ability/proc/activate(var/checkstat = 1)
 	if (!parent || !parent.affecting)
@@ -45,6 +50,16 @@ ________________________________________________________________________________
 	if (cd)
 		cd--
 
+/datum/sn_ability/New()
+	..()
+	abbutton = new /obj/screen/ability(src)
+	abbutton.icon = 'ninja_buttons.dmi'
+	abbutton.master = src
+	if(buttonspot)
+		abbutton.screen_loc = buttonspot
+	if(buttoniconstate)
+		abbutton.icon_state = buttoniconstate
+
 //=======//SMOKE//=======//
 /*Summons smoke in radius of user.
 Not sure why this would be useful (it's not) but whatever. Ninjas need their smoke bombs.*/
@@ -53,6 +68,8 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	adesc = "Generate a cloud of smoke from emitters in your suit to blind and choke pursuers."
 	acost = 50
 	ncd = 5
+	buttonspot = "EAST:-6, NORTH-1:26"
+	buttoniconstate = "smoke"
 
 /datum/sn_ability/ninjasmoke/activate()
 	if (..())
@@ -80,6 +97,8 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	ncd = 1
 	var/turf/dest
 	var/turf/mobloc
+	buttonspot = "EAST-1:-8, NORTH-1:26"
+	buttoniconstate = "jaunt"
 
 /datum/sn_ability/ninjajaunt/special_check()
 	dest = get_teleport_loc(parent.affecting.loc,parent.affecting,9,1,3,1,0,1)
@@ -88,22 +107,23 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 		return "<span class='alert'>ALERT: Unacceptable starting location. Cannot jaunt or shift from this terrain.</span>"
 
 /datum/sn_ability/ninjajaunt/activate()
-	spawn(0)
-		playsound(parent.affecting.loc, "sparks", 50, 1)
-		anim(mobloc,src,'icons/mob/mob.dmi',,"phaseout",,parent.affecting.dir)
+	if(..())
+		spawn(0)
+			playsound(parent.affecting.loc, "sparks", 50, 1)
+			anim(mobloc,src,'icons/mob/mob.dmi',,"phaseout",,parent.affecting.dir)
 
-	handle_teleport_grab(dest)
-	parent.affecting.loc = dest
+		handle_teleport_grab(dest)
+		parent.affecting.loc = dest
 
-	spawn(0)
-		parent.spark_system.start()
-		playsound(dest, 'sound/effects/phasein.ogg', 25, 1)
-		playsound(dest, "sparks", 50, 1)
-		anim(dest.loc,parent.affecting,'icons/mob/mob.dmi',,"phasein",,parent.affecting.dir)
+		spawn(0)
+			parent.spark_system.start()
+			playsound(dest, 'sound/effects/phasein.ogg', 25, 1)
+			playsound(dest, "sparks", 50, 1)
+			anim(dest.loc,parent.affecting,'icons/mob/mob.dmi',,"phasein",,parent.affecting.dir)
 
-	spawn(0)
-		dest.kill_creatures(parent.affecting)//Any living mobs in teleport area are gibbed. Check turf procs for how it does it.
-	return
+		spawn(0)
+			dest.kill_creatures(parent.affecting)//Any living mobs in teleport area are gibbed. Check turf procs for how it does it.
+		return
 
 //=======//RIGHT CLICK TELEPORT//=======//
 //Right click to teleport somewhere, almost exactly like admin jump to turf.
@@ -112,6 +132,8 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	adesc = "Utilize VOID-shift tech to teleport to a targeted location in view."
 	//set src = usr.contents//Fixes verbs not attaching properly for objects. Praise the DM reference guide! (???)
 	acost = 2000
+	buttonspot = "EAST-2:-10, NORTH-1:26"
+	buttoniconstate = "shift"
 
 /datum/sn_ability/ninjajaunt/ninjashift/special_check()
 	..()
@@ -126,6 +148,8 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	adesc = "Force extra charge through the suit's circuits, causing an electro-magnetic pulse."
 	acost = 2500
 	ncd = 10
+	buttonspot = "EAST-3:-12, NORTH-1:26"
+	buttoniconstate = "emp"
 
 /datum/sn_ability/ninjapulse/activate()
 	if(..())
@@ -138,6 +162,8 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	aname = "Energy Blade"
 	adesc = "Create a focused beam of energy in your active hand. Requires power to maintain."
 	acost = 50
+	buttonspot = "EAST-4:-14, NORTH-1:26"
+	buttoniconstate = "blade"
 
 /datum/sn_ability/ninjablade/special_check()
 	if(blade_check())
@@ -146,10 +172,11 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 		return "<span class='alert'>ALERT: Hand is already occupied.</span>"
 
 /datum/sn_ability/ninjablade/activate()
-	var/obj/item/weapon/melee/energy/blade/W = new()
-	parent.spark_system.start()
-	playsound(parent.affecting.loc, "sparks", 50, 1)
-	parent.affecting.put_in_hands(W)
+	if(..())
+		var/obj/item/weapon/melee/energy/blade/W = new()
+		parent.spark_system.start()
+		playsound(parent.affecting.loc, "sparks", 50, 1)
+		parent.affecting.put_in_hands(W)
 
 /datum/sn_ability/ninjablade/maintain()
 	if (!parent || !parent.cell)
@@ -180,6 +207,8 @@ This could be a lot better but I'm too tired atm.*/
 	acost = 500
 	ncd = 1
 	var/targets[] = list()//So yo can shoot while yo throw dawg
+	buttonspot = "EAST-5:-16, NORTH-1:26"
+	buttoniconstate = "star"
 
 /datum/sn_ability/ninjastar/special_check()
 	targets = null
@@ -212,6 +241,8 @@ Movement impairing would indicate drugs and the like.*/
 	adesc = "Overcharge the suit's assist servos and inject adrenaline to counteract incapacitation."
 	acost = 1000
 	ncd = 3
+	buttonspot = "EAST-6:-18, NORTH-1:26"
+	buttoniconstate = "boost"
 
 /datum/sn_ability/ninjaboost/activate()
 	if(..(0))//Have to make sure stat is not counted for this ability.

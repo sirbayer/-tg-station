@@ -61,10 +61,19 @@
 	stored_research = new()//Stolen research initialize.
 	cell = new/obj/item/weapon/cell/high//The suit should *always* have a battery because so many things rely on it.
 	cell.charge = 9000//Starting charge should not be higher than maximum charge. It leads to problems with recharging.
+	var/list/tempabil = typesof(/datum/sn_ability) //Time to awkwardly initialize abilities
+//	tempabil -= /datum/sn_ability
+	abilities = list()
+	for (var/i = 1, i <= tempabil.len, i++)
+		var/datum/sn_ability/holyfuckingshit = tempabil[i]
+		holyfuckingshit = new holyfuckingshit(src)
+		holyfuckingshit.parent = src
+		abilities += holyfuckingshit
 
 /obj/item/clothing/suit/space/space_ninja/Del()
 	if(affecting)//To make sure the window is closed.
 		affecting << browse(null, "window=hack spideros")
+		remove_ninja_buttons()
 	if(AI)//If there are AIs present when the ninja kicks the bucket.
 		killai()
 	if(hologram)//If there is a hologram

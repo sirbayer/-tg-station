@@ -12,7 +12,7 @@
 	for (var/datum/sn_ability/AB in abilities)
 		AB.maintain()
 	if(!cell.use(s_cost))
-		power_failure()
+		suit_power_failure()
 
 //=======//INITIALIZE//=======//
 
@@ -45,8 +45,7 @@
 					U.regenerate_icons()
 				if(6)
 					U << "<span class='notice'>All systems operational. Welcome to <B>SpiderOS</B>, [U.real_name].</span>"
-//					grant_ninja_verbs()
-//					grant_equip_verbs()
+					grant_ninja_buttons()
 					processing_objects.Add(src)
 			sleep(delay)
 		s_busy = 0
@@ -76,6 +75,7 @@
 					s_initialized = 0
 					update_icon()
 					U.regenerate_icons()
+					remove_ninja_buttons()
 					cancel_stealth()//Shutdowns stealth.
 				if(3)
 					U << "<span class='notice'>VOID-shift device status: <B>OFFLINE</B>.\nCLOAK-tech device status: <B>OFFLINE</B>.</span>"
@@ -143,3 +143,6 @@
 		n_gloves.canremove = 1
 		n_gloves.candrain = 0
 		n_gloves.draining = 0
+
+/obj/item/clothing/suit/space/space_ninja/proc/suit_power_failure()
+	deinitialize()

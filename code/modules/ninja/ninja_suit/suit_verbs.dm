@@ -33,6 +33,21 @@
 		affecting << "<span class='alert'>ALERT: CLOAK-tech is not responding.</span>"
 	return
 
+/obj/item/clothing/suit/space/space_ninja/proc/grant_ninja_buttons()
+	if (!affecting || !affecting.client || !abilities.len)
+		return
+	for (var/i = 1, i <= abilities.len, i++)
+		var/datum/sn_ability/thisisbullshit = abilities[i]
+		affecting.client.screen += thisisbullshit.abbutton
+
+
+/obj/item/clothing/suit/space/space_ninja/proc/remove_ninja_buttons()
+	if (!affecting || !affecting.client || !abilities.len)
+		return
+	for (var/i = 1, i <= abilities.len, i++)
+		var/datum/sn_ability/thisisbullshit = abilities[i]
+		affecting.client.screen -= thisisbullshit.abbutton
+
 /*
 /obj/item/clothing/suit/space/space_ninja/proc/grant_equip_verbs()
 	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/init

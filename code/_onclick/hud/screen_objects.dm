@@ -322,3 +322,7 @@
 				usr.update_inv_r_hand(0)
 				usr.next_move = world.time+6
 	return 1
+
+/obj/screen/ability/Click()
+	if (master)
+		master:activate()
