@@ -8,14 +8,29 @@
 	var/list/alarms_to_clear = list()
 
 
+	var/viewalerts = 0
+	var/alarms = list("Motion"=list(), "Fire"=list(), "Atmosphere"=list(), "Power"=list(), "Camera"=list())
 	var/list/alarm_types_show = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 	var/list/alarm_types_clear = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 
 	var/lawcheck[1]
 	var/ioncheck[1]
 
-/mob/living/silicon/proc/cancelAlarm()
-	return
+/mob/living/silicon/proc/cancelAlarm(var/class, area/A as area, obj/origin)
+	var/list/L = alarms[class]
+	var/cleared = 0
+	for (var/I in L)
+		if (I == A.name)
+			var/list/alarm = L[I]
+			var/list/srcs  = alarm[3]
+			if (origin in srcs)
+				srcs -= origin
+			if (srcs.len == 0)
+				cleared = 1
+				L -= I
+	if (cleared)
+		queueAlarm(text("--- [] alarm in [] has been cleared.", class, A.name), class, 0)
+	return !cleared
 
 /mob/living/silicon/proc/triggerAlarm()
 	return

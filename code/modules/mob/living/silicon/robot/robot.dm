@@ -39,9 +39,6 @@
 	var/locked = 1
 	var/list/req_access = list(access_robotics)
 	var/ident = 0
-	//var/list/laws = list()
-	var/alarms = list("Motion"=list(), "Fire"=list(), "Atmosphere"=list(), "Power"=list(), "Camera"=list())
-	var/viewalerts = 0
 	var/modtype = "robot"
 	var/lower_mod = 0
 	var/jetpack = 0
@@ -369,26 +366,7 @@
 		C = O
 	L[A.name] = list(A, (C) ? C : O, list(alarmsource))
 	queueAlarm(text("--- [class] alarm detected in [A.name]!"), class)
-//	if (viewalerts) robot_alerts()
 	return 1
-
-
-/mob/living/silicon/robot/cancelAlarm(var/class, area/A as area, obj/origin)
-	var/list/L = alarms[class]
-	var/cleared = 0
-	for (var/I in L)
-		if (I == A.name)
-			var/list/alarm = L[I]
-			var/list/srcs  = alarm[3]
-			if (origin in srcs)
-				srcs -= origin
-			if (srcs.len == 0)
-				cleared = 1
-				L -= I
-	if (cleared)
-		queueAlarm(text("--- [class] alarm in [A.name] has been cleared."), class, 0)
-//		if (viewalerts) robot_alerts()
-	return !cleared
 
 
 /mob/living/silicon/robot/attackby(obj/item/weapon/W as obj, mob/user as mob)

@@ -2,8 +2,6 @@
 //	- Additional radio modules
 //	- Potentially roll HUDs and Records into one
 //	- Shock collar/lock system for prisoner pAIs?
-//  - Put cable in user's hand instead of on the ground
-//  - Camera jack
 
 
 /mob/living/silicon/pai/var/list/available_software = list(
@@ -11,14 +9,11 @@
 															"digital messenger" = 5,
 															"medical records" = 15,
 															"security records" = 15,
-															//"camera jack" = 10,
 															"door jack" = 30,
 															"atmosphere sensor" = 5,
-															//"heartbeat sensor" = 10,
 															"security HUD" = 20,
 															"medical HUD" = 20,
 															"universal translator" = 35,
-															//"projection array" = 15
 															"remote signaller" = 5,
 															)
 
@@ -60,10 +55,12 @@
 				left_part = src.facialRecognition()
 			if("medicalhud")
 				left_part = src.medicalAnalysis()
+			/*
 			if("doorjack")
 				left_part = src.softwareDoor()
 			if("camerajack")
 				left_part = src.softwareCamera()
+			*/
 			if("signaller")
 				left_part = src.softwareSignal()
 
@@ -243,6 +240,8 @@
 		if("translator")
 			if(href_list["toggle"])
 				src.universal_speak = !src.universal_speak
+
+		/*
 		if("doorjack")
 			if(href_list["jack"])
 				if(src.cable && src.cable.machine)
@@ -250,11 +249,14 @@
 					src.hackloop()
 			if(href_list["cancel"])
 				src.hackdoor = null
+			*/
+				/*
 			if(href_list["cable"])
 				var/turf/T = get_turf(src.loc)
 				src.cable = new /obj/item/weapon/pai_cable(T)
 				for (var/mob/M in viewers(T))
 					M.show_message("\red A port on [src] opens to reveal [src.cable], which promptly falls to the floor.", 3, "\red You hear the soft click of something light and hard falling to the ground.", 2)
+					*/
 	//src.updateUsrDialog()		We only need to account for the single mob this is intended for, and he will *always* be able to call this window
 	src.paiInterface()		 // So we'll just call the update directly rather than doing some default checks
 	return
@@ -541,7 +543,7 @@
 	dat += "<a href='byond://?src=\ref[src];software=atmosensor;sub=0'>Refresh Reading</a> <br>"
 	dat += "<br>"
 	return dat
-
+/*
 // Camera Jack - Clearly not finished
 /mob/living/silicon/pai/proc/softwareCamera()
 	var/dat = "<h3>Camera Jack</h3>"
@@ -560,7 +562,9 @@
 	if(!istype(machine, /obj/machinery/camera))
 		src << "DERP"
 	return dat
+*/
 
+/*
 // Door Jack
 /mob/living/silicon/pai/proc/softwareDoor()
 	var/dat = "<h3>Airlock Jack</h3>"
@@ -588,7 +592,9 @@
 	//src.hackdoor = machine
 	//src.hackloop()
 	return dat
+*/
 
+/*
 // Door Jack - supporting proc
 /mob/living/silicon/pai/proc/hackloop()
 	var/turf/T = get_turf(src.loc)
@@ -613,6 +619,7 @@
 			src.hackprogress = 0
 			src.cable.machine:open()
 		sleep(50)			// Update every 5 seconds
+*/
 
 // Digital Messenger
 /mob/living/silicon/pai/proc/pdamessage()

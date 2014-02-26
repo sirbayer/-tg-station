@@ -377,26 +377,6 @@
 				del B
 		del A
 
-/*
-/obj/item/weapon/cigarpacket
-	name = "Pete's Cuban Cigars"
-	desc = "The most robust cigars on the planet."
-	icon = 'icons/obj/cigarettes.dmi'
-	icon_state = "cigarpacket"
-	item_state = "cigarpacket"
-	w_class = 1
-	throwforce = 2
-	var/cigarcount = 6
-*/
-
-/obj/item/weapon/pai_cable
-	desc = "A flexible coated cable with a universal jack on one end."
-	name = "data cable"
-	icon = 'icons/obj/power.dmi'
-	icon_state = "wire1"
-
-	var/obj/machinery/machine
-
 ///////////////////////////////////////Stock Parts /////////////////////////////////
 
 /obj/item/weapon/stock_parts

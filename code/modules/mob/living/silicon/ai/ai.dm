@@ -23,34 +23,26 @@ var/list/ai_list = list()
 	var/obj/machinery/camera/current = null
 	var/list/connected_robots = list()
 	var/aiRestorePowerRoutine = 0
-	//var/list/laws = list()
-	var/alarms = list("Motion"=list(), "Fire"=list(), "Atmosphere"=list(), "Power"=list(), "Camera"=list())
-	var/viewalerts = 0
 	var/icon/holo_icon//Default is assigned when AI is created.
 	var/obj/item/device/pda/ai/aiPDA = null
 	var/obj/item/device/multitool/aiMulti = null
 	var/obj/item/device/camera/ai_camera/aicamera = null
+	var/last_announcement = "" // For AI VOX, if enabled
+	var/last_paper_seen = null
+	var/camera_light_on = 0	//Defines if the AI toggled the light on the camera it's looking through.
+	var/datum/trackable/track = null
 
 	//MALFUNCTION
 	var/datum/module_picker/malf_picker
 	var/processing_time = 100
 	var/list/datum/AI_Module/current_modules = list()
 	var/fire_res_on_core = 0
-
 	var/control_disabled = 0 // Set to 1 to stop AI from interacting via Click() -- TLE
 	var/malfhacking = 0 // More or less a copy of the above var, so that malf AIs can hack and still get new cyborgs -- NeoFite
-
 	var/obj/machinery/power/apc/malfhack = null
 	var/explosive = 0 //does the AI explode when it dies?
-
 	var/mob/living/silicon/ai/parent = null
-
-	var/camera_light_on = 0	//Defines if the AI toggled the light on the camera it's looking through.
-	var/datum/trackable/track = null
-
-	var/last_paper_seen = null
 	var/can_shunt = 1
-	var/last_announcement = "" // For AI VOX, if enabled
 
 /mob/living/silicon/ai/New(loc, var/datum/ai_laws/L, var/obj/item/device/mmi/B, var/safety = 0)
 	var/list/possibleNames = ai_names
@@ -504,21 +496,11 @@ var/list/ai_list = list()
 	if (viewalerts) ai_alerts()
 	return 1
 
-/mob/living/silicon/ai/cancelAlarm(var/class, area/A as area, obj/origin)
-	var/list/L = alarms[class]
-	var/cleared = 0
-	for (var/I in L)
-		if (I == A.name)
-			var/list/alarm = L[I]
-			var/list/srcs  = alarm[3]
-			if (origin in srcs)
-				srcs -= origin
-			if (srcs.len == 0)
-				cleared = 1
-				L -= I
-	if (cleared)
-		queueAlarm(text("--- [] alarm in [] has been cleared.", class, A.name), class, 0)
-		if (viewalerts) ai_alerts()
+/mob/living/silicon/ai/cancelAlarm()
+	var/cleared = ..()
+	if(cleared)
+		if(viewalerts)
+			ai_alerts()
 	return !cleared
 
 /mob/living/silicon/ai/cancel_camera()
