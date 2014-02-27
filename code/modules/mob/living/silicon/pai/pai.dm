@@ -42,8 +42,8 @@
 	var/datum/data/record/securityActive1		// Could probably just combine all these into one
 	var/datum/data/record/securityActive2
 
-	var/obj/machinery/door/hackdoor		// The airlock being hacked
-	var/hackprogress = 0				// Possible values: 0 - 100, >= 100 means the hack is complete and will be reset upon next check
+//	var/obj/machinery/door/hackdoor		// The airlock being hacked
+//	var/hackprogress = 0				// Possible values: 0 - 100, >= 100 means the hack is complete and will be reset upon next check
 
 	var/obj/item/radio/integrated/signal/sradio // pAI's signaller
 
@@ -105,12 +105,7 @@
 
 
 /mob/living/silicon/pai/blob_act()
-	if (src.stat != 2)
-		src.adjustBruteLoss(60)
-		src.updatehealth()
-		return 1
 	return 0
-
 
 /mob/living/silicon/pai/restrained()
 	return 0
@@ -163,7 +158,12 @@
 				adjustBruteLoss(30)
 	return
 
-///mob/living/silicon/pai/attack_hand(mob/living/carbon/M as mob)
+/mob/living/silicon/pai/triggerAlarm(var/class, area/alm_area, var/alm_type, var/alm_source)
+	if(!..()) return 0
+	if(viewalerts)
+		queueAlarm(text("--- [class] alarm detected in [alm_area.name]!"), class)
+		return 1
+	return 0
 
 /mob/living/silicon/pai/proc/switchCamera(var/obj/machinery/camera/C)
 	usr:cameraFollow = null
