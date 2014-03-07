@@ -1,5 +1,3 @@
-#define ninjabuttonspot1
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 +++++++++++++++++++++++++++++++++//                    //++++++++++++++++++++++++++++++++++
@@ -10,20 +8,17 @@ ________________________________________________________________________________
 
 //basic definitions below
 
-/datum/sn_ability
+/obj/screen/ability/ninja
 	var/obj/item/clothing/suit/space/space_ninja/parent = null //the ninja suit this comes from
 	var/acost = 0 //ability cost
 	var/cd = 0 //current cooldown
 	var/ncd = 0 //cooldown
 	var/aname = "Generic Ninja Ability"
 	var/adesc = "A generic spess ninja ability. You shouldn't be seeing this."
-	var/obj/screen/ability/abbutton
-	var/buttonspot
-	var/buttoniconstate
 
-/datum/sn_ability/proc/activate(var/checkstat = 1)
+/obj/screen/ability/ninja/activate(var/checkstat = 1)
 	if (!parent || !parent.affecting)
-		del(src)
+		return 0
 	if (parent.s_busy)
 		parent.affecting << "<span class='alert'>Suit is already busy, please wait.</span>"
 		return 0
@@ -43,35 +38,24 @@ ________________________________________________________________________________
 	cd = ncd
 	return 1
 
-/datum/sn_ability/proc/special_check()
+/obj/screen/ability/ninja/proc/special_check()
 	return
 
-/datum/sn_ability/proc/maintain()
+/obj/screen/ability/ninja/proc/maintain()
 	if (cd)
 		cd--
-
-/datum/sn_ability/New()
-	..()
-	abbutton = new /obj/screen/ability(src)
-	abbutton.icon = 'ninja_buttons.dmi'
-	abbutton.master = src
-	if(buttonspot)
-		abbutton.screen_loc = buttonspot
-	if(buttoniconstate)
-		abbutton.icon_state = buttoniconstate
 
 //=======//SMOKE//=======//
 /*Summons smoke in radius of user.
 Not sure why this would be useful (it's not) but whatever. Ninjas need their smoke bombs.*/
-/datum/sn_ability/ninjasmoke
+/obj/screen/ability/ninja/ninjasmoke
 	aname = "Smoke Bomb"
 	adesc = "Generate a cloud of smoke from emitters in your suit to blind and choke pursuers."
 	acost = 50
 	ncd = 5
-	buttonspot = "EAST:-6, NORTH-1:26"
-	buttoniconstate = "smoke"
+	icon_state = "smoke"
 
-/datum/sn_ability/ninjasmoke/activate()
+/obj/screen/ability/ninja/ninjasmoke/activate()
 	if (..())
 		var/datum/effect/effect/system/bad_smoke_spread/smoke = new /datum/effect/effect/system/bad_smoke_spread()
 		smoke.set_up(10, 0, parent.affecting.loc)
@@ -79,7 +63,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 		playsound(parent.affecting.loc, 'sound/effects/bamf.ogg', 50, 2)
 
 //=======//TELEPORT GRAB CHECK//=======//
-/datum/sn_ability/proc/handle_teleport_grab(turf/T)
+/obj/screen/ability/ninja/proc/handle_teleport_grab(turf/T)
 	if(istype(parent.affecting.get_active_hand(),/obj/item/weapon/grab))//Handles grabbed persons.
 		var/obj/item/weapon/grab/G = parent.affecting.get_active_hand()
 		G.affecting.loc = locate(T.x+rand(-1,1),T.y+rand(-1,1),T.z)//variation of position.
@@ -90,26 +74,25 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 
 //=======//9-8 TILE TELEPORT//=======//
 //Click to to teleport 9-10 tiles in direction facing.
-/datum/sn_ability/ninjajaunt
+/obj/screen/ability/ninja/ninjajaunt
 	aname = "Phase Jaunt"
 	adesc = "Utilize VOID-shift tech to teleport imprecisely to a location you're facing."
 	acost = 1000
 	ncd = 1
 	var/turf/dest
 	var/turf/mobloc
-	buttonspot = "EAST-1:-8, NORTH-1:26"
-	buttoniconstate = "jaunt"
+	icon_state = "jaunt"
 
-/datum/sn_ability/ninjajaunt/special_check()
+/obj/screen/ability/ninja/ninjajaunt/special_check()
 	dest = get_teleport_loc(parent.affecting.loc,parent.affecting,9,1,3,1,0,1)
 	mobloc = get_turf(parent.affecting.loc)
 	if(!(dest&&istype(mobloc, /turf)))
 		return "<span class='alert'>ALERT: Unacceptable starting location. Cannot jaunt or shift from this terrain.</span>"
 
-/datum/sn_ability/ninjajaunt/activate()
+/obj/screen/ability/ninja/ninjajaunt/activate()
 	if(..())
 		spawn(0)
-			playsound(parent.affecting.loc, "sparks", 50, 1)
+			playsound(mobloc, "sparks", 50, 1)
 			anim(mobloc,src,'icons/mob/mob.dmi',,"phaseout",,parent.affecting.dir)
 
 		handle_teleport_grab(dest)
@@ -127,15 +110,14 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 
 //=======//RIGHT CLICK TELEPORT//=======//
 //Right click to teleport somewhere, almost exactly like admin jump to turf.
-/datum/sn_ability/ninjajaunt/ninjashift
+/obj/screen/ability/ninja/ninjajaunt/ninjashift
 	aname = "Phase Shift"
 	adesc = "Utilize VOID-shift tech to teleport to a targeted location in view."
 	//set src = usr.contents//Fixes verbs not attaching properly for objects. Praise the DM reference guide! (???)
 	acost = 2000
-	buttonspot = "EAST-2:-10, NORTH-1:26"
-	buttoniconstate = "shift"
+	icon_state = "shift"
 
-/datum/sn_ability/ninjajaunt/ninjashift/special_check()
+/obj/screen/ability/ninja/ninjajaunt/ninjashift/special_check()
 	..()
 	//dest = ?????? WE NEED TO TARGET HERE
 	if(dest.density)
@@ -143,42 +125,40 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 
 //=======//EM PULSE//=======//
 //Disables nearby tech equipment.
-/datum/sn_ability/ninjapulse
+/obj/screen/ability/ninja/ninjapulse
 	aname = "EM Burst"
 	adesc = "Force extra charge through the suit's circuits, causing an electro-magnetic pulse."
 	acost = 2500
 	ncd = 10
-	buttonspot = "EAST-3:-12, NORTH-1:26"
-	buttoniconstate = "emp"
+	icon_state = "emp"
 
-/datum/sn_ability/ninjapulse/activate()
+/obj/screen/ability/ninja/ninjapulse/activate()
 	if(..())
 		playsound(parent.affecting.loc, 'sound/effects/EMPulse.ogg', 60, 2)
 		empulse(parent.affecting, 4, 6) //Procs sure are nice. Slightly weaker than wizard's disable tch.
 
 //=======//ENERGY BLADE//=======//
 //Summons a blade of energy in active hand.
-/datum/sn_ability/ninjablade
+/obj/screen/ability/ninja/ninjablade
 	aname = "Energy Blade"
 	adesc = "Create a focused beam of energy in your active hand. Requires power to maintain."
 	acost = 50
-	buttonspot = "EAST-4:-14, NORTH-1:26"
-	buttoniconstate = "blade"
+	icon_state = "blade"
 
-/datum/sn_ability/ninjablade/special_check()
+/obj/screen/ability/ninja/ninjablade/special_check()
 	if(blade_check())
 		return "<span class='alert'>ALERT: Energy blade is already active.</span>"
 	if(parent.affecting.get_active_hand())
 		return "<span class='alert'>ALERT: Hand is already occupied.</span>"
 
-/datum/sn_ability/ninjablade/activate()
+/obj/screen/ability/ninja/ninjablade/activate()
 	if(..())
 		var/obj/item/weapon/melee/energy/blade/W = new()
 		parent.spark_system.start()
 		playsound(parent.affecting.loc, "sparks", 50, 1)
 		parent.affecting.put_in_hands(W)
 
-/datum/sn_ability/ninjablade/maintain()
+/obj/screen/ability/ninja/ninjablade/maintain()
 	if (!parent || !parent.cell)
 		del(src) //ha ha desperate measures
 	if(!parent.cell.use(acost))
@@ -186,12 +166,12 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 		parent.cell.charge = 0
 		return
 
-/datum/sn_ability/ninjablade/proc/blade_check()
+/obj/screen/ability/ninja/ninjablade/proc/blade_check()
 	if(istype(parent.affecting.get_active_hand(), /obj/item/weapon/melee/energy/blade) || istype(parent.affecting.get_inactive_hand(), /obj/item/weapon/melee/energy/blade))
 		return 1
 	return 0
 
-/datum/sn_ability/ninjablade/proc/blade_kill()
+/obj/screen/ability/ninja/ninjablade/proc/blade_kill()
 	if(istype(parent.affecting.get_active_hand(), /obj/item/weapon/melee/energy/blade))
 		parent.affecting.drop_item()
 	if(istype(parent.affecting.get_inactive_hand(), /obj/item/weapon/melee/energy/blade))
@@ -201,24 +181,23 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 //=======//NINJA STARS//=======//
 /*Shoots ninja stars at random people.
 This could be a lot better but I'm too tired atm.*/
-/datum/sn_ability/ninjastar
+/obj/screen/ability/ninja/ninjastar
 	aname = "Energy Star"
 	adesc = "Throw an energy star at a random living target."
 	acost = 500
 	ncd = 1
 	var/targets[] = list()//So yo can shoot while yo throw dawg
-	buttonspot = "EAST-5:-16, NORTH-1:26"
-	buttoniconstate = "star"
+	icon_state = "star"
 
-/datum/sn_ability/ninjastar/special_check()
-	targets = null
+/obj/screen/ability/ninja/ninjastar/special_check()
+	targets = list()
 	for(var/mob/living/M in oview(parent.affecting.loc))
 		if(M.stat)	continue//Doesn't target corpses or paralyzed persons.
 		targets.Add(M)
 	if(!targets.len)
 		return "<span class='alert'>ALERT: No targets detected.</span>"
 
-/datum/sn_ability/ninjastar/activate()
+/obj/screen/ability/ninja/ninjastar/activate()
 	if (..())
 		var/mob/living/target=pick(targets)//The point here is to pick a random, living mob in oview to shoot stuff at.
 		var/turf/curloc = parent.affecting.loc
@@ -236,15 +215,14 @@ This could be a lot better but I'm too tired atm.*/
 //=======//ADRENALINE BOOST//=======//
 /*Wakes the user so they are able to do their thing. Also injects a decent dose of radium.
 Movement impairing would indicate drugs and the like.*/
-/datum/sn_ability/ninjaboost
+/obj/screen/ability/ninja/ninjaboost
 	aname = "Adrenaline Boost"
 	adesc = "Overcharge the suit's assist servos and inject adrenaline to counteract incapacitation."
 	acost = 1000
 	ncd = 3
-	buttonspot = "EAST-6:-18, NORTH-1:26"
-	buttoniconstate = "boost"
+	icon_state = "boost"
 
-/datum/sn_ability/ninjaboost/activate()
+/obj/screen/ability/ninja/ninjaboost/activate()
 	if(..(0))//Have to make sure stat is not counted for this ability.
 		parent.affecting.SetParalysis(0)
 		parent.affecting.SetStunned(0)

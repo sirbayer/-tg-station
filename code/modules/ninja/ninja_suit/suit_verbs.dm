@@ -36,34 +36,28 @@
 /obj/item/clothing/suit/space/space_ninja/proc/grant_ninja_buttons()
 	if (!affecting || !affecting.client || !abilities.len)
 		return
-	for (var/i = 1, i <= abilities.len, i++)
-		var/datum/sn_ability/thisisbullshit = abilities[i]
-		affecting.client.screen += thisisbullshit.abbutton
-
+	affecting.add_abilities(abilities)
 
 /obj/item/clothing/suit/space/space_ninja/proc/remove_ninja_buttons()
 	if (!affecting || !affecting.client || !abilities.len)
 		return
-	for (var/i = 1, i <= abilities.len, i++)
-		var/datum/sn_ability/thisisbullshit = abilities[i]
-		affecting.client.screen -= thisisbullshit.abbutton
+	affecting.remove_abilities(abilities)
 
-/*
 /obj/item/clothing/suit/space/space_ninja/proc/grant_equip_verbs()
 	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/init
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/deinit
-	verbs += /obj/item/clothing/suit/space/space_ninja/proc/spideros
-	verbs += /obj/item/clothing/suit/space/space_ninja/proc/stealth
+//	verbs += /obj/item/clothing/suit/space/space_ninja/proc/spideros
+//	verbs += /obj/item/clothing/suit/space/space_ninja/proc/stealth
 	n_gloves.verbs += /obj/item/clothing/gloves/space_ninja/proc/toggled
 
 /obj/item/clothing/suit/space/space_ninja/proc/remove_equip_verbs()
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/init
 	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/deinit
-	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/spideros
-	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/stealth
+//	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/spideros
+//	verbs -= /obj/item/clothing/suit/space/space_ninja/proc/stealth
 	if(n_gloves)
 		n_gloves.verbs -= /obj/item/clothing/gloves/space_ninja/proc/toggled
-
+/*
 /obj/item/clothing/suit/space/space_ninja/proc/grant_ninja_verbs()
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/ninjashift
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/ninjajaunt

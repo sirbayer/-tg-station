@@ -9,7 +9,7 @@
 			ai_return_control()//Return control to ninja if the AI was previously in control.
 		killai()//Delete AI.
 	//Now let's do the normal processing.
-	for (var/datum/sn_ability/AB in abilities)
+	for (var/obj/screen/ability/ninja/AB in abilities)
 		AB.maintain()
 	if(!cell.use(s_cost))
 		suit_power_failure()
@@ -46,9 +46,10 @@
 				if(6)
 					U << "<span class='notice'>All systems operational. Welcome to <B>SpiderOS</B>, [U.real_name].</span>"
 					grant_ninja_buttons()
+					grant_equip_verbs()
 					processing_objects.Add(src)
+					s_busy = 0
 			sleep(delay)
-		s_busy = 0
 	else
 		U << "<span class='alert'><B>ALERT:</B> Initialization failed. Check suit for power or ongoing initialization.</span>"
 	return
@@ -69,7 +70,7 @@
 					spideros = 0//Spideros resets.
 				if(1)
 					U << "<span class='notice'>Logging off, [U.real_name]. Shutting down SpiderOS.</span>"
-//					remove_ninja_verbs()
+					remove_ninja_buttons()
 				if(2)
 					U << "<span class='notice'>Primary system status: <B>OFFLINE</B>.\nBackup system status: <B>OFFLINE</B>.</span>"
 					s_initialized = 0
@@ -85,10 +86,10 @@
 					U << "<span class='notice'>Disengaging neural-net interface... <B>Success</B>.</span>"
 				if(6)
 					U << "<span class='notice'>Unsecuring external locking mechanism...\nNeural-net abolished.\nOperation status: <B>FINISHED</B>.</span>"
-//					remove_equip_verbs()
+					remove_equip_verbs()
 					unlock_suit()
+					s_busy = 0
 			sleep(delay)
-		s_busy = 0
 	return
 
 //This proc prevents the suit from being taken off.

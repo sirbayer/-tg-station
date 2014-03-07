@@ -668,6 +668,7 @@
 #include "code\LINDA\LINDA_fire.dm"
 #include "code\LINDA\LINDA_system.dm"
 #include "code\LINDA\LINDA_turf_tile.dm"
+#include "code\modules\abilities\abilities.dm"
 #include "code\modules\admin\admin.dm"
 #include "code\modules\admin\admin_investigate.dm"
 #include "code\modules\admin\admin_memo.dm"
