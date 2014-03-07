@@ -10,7 +10,7 @@
 /obj/item/clothing/ears
 	name = "ears"
 	w_class = 1.0
-	throwforce = 2
+	throwforce = 0
 	slot_flags = SLOT_EARS
 
 /obj/item/clothing/ears/earmuffs
@@ -28,9 +28,14 @@
 	flags = GLASSESCOVERSEYES
 	slot_flags = SLOT_EYES
 	var/vision_flags = 0
-	var/darkness_view = 0//Base human is 2
-	var/invisa_view = 0
+	var/darkness_view = 2//Base human is 2
+	var/invis_view = SEE_INVISIBLE_LIVING
 	var/emagged = 0
+	var/hud = null
+	var/list/icon/current = list() //the current hud icons
+
+/obj/item/clothing/glasses/proc/process_hud(var/mob/M)
+	return
 
 /*
 SEE_SELF  // can see self, no matter what
@@ -158,15 +163,22 @@ BLIND     // can't see anything
 	var/obj/item/clothing/tie/hastie = null
 
 /obj/item/clothing/under/attackby(obj/item/I, mob/user)
+	attachTie(I, user)
+	..()
+
+/obj/item/clothing/under/proc/attachTie(obj/item/I, mob/user)
 	if(istype(I, /obj/item/clothing/tie))
 		if(hastie)
-			user << "<span class='warning'>[src] already has an accessory.</span>"
+			if(user)
+				user << "<span class='warning'>[src] already has an accessory.</span>"
 			return
 		else
-			user.drop_item()
+			if(user)
+				user.drop_item()
 			hastie = I
 			I.loc = src
-			user << "<span class='notice'>You attach [I] to [src].</span>"
+			if(user)
+				user << "<span class='notice'>You attach [I] to [src].</span>"
 			I.transform *= 0.5	//halve the size so it doesn't overpower the under
 			I.pixel_x += 8
 			I.pixel_y -= 8
@@ -180,7 +192,6 @@ BLIND     // can't see anything
 
 			return
 
-	..()
 
 /obj/item/clothing/under/examine()
 	set src in view()

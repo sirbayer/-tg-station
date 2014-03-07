@@ -13,6 +13,7 @@
 	throwforce = 10
 	w_class = 3
 	var/charged = 1
+	hitsound = 'sound/weapons/bladeslice.ogg'
 
 /obj/effect/rend
 	name = "tear in the fabric of reality"
@@ -83,8 +84,8 @@
 	desc = "An incandescent orb of otherworldly energy, staring into it gives you vision beyond mortal means."
 	icon = 'icons/obj/projectiles.dmi'
 	icon_state ="bluespace"
-	throw_speed = 7
-	throw_range = 15
+	throw_speed = 3
+	throw_range = 7
 	throwforce = 15
 	damtype = BURN
 	force = 15

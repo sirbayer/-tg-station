@@ -921,6 +921,16 @@ datum/design/tech_disk
 /////////////Stock Parts////////////////
 ////////////////////////////////////////
 
+datum/design/RPED
+	name = "Rapid Part Exchange Device"
+	desc = "Special mechanical module made to store, sort, and apply standart machine parts."
+	id = "rped"
+	req_tech = list("engineering" = 3,
+					"materials" = 3)
+	build_type = PROTOLATHE
+	materials = list("$metal" = 15000, "$glass" = 5000) //hardcore
+	build_path = /obj/item/weapon/storage/part_replacer
+
 datum/design/basic_capacitor
 	name = "Basic Capacitor"
 	desc = "A stock part used in the construction of various devices."
@@ -1063,6 +1073,15 @@ datum/design/super_matter_bin
 
 
 
+datum/design/telesci_gps
+	name = "GPS Device"
+	desc = "Little thingie that can track its position at all times."
+	id = "telesci_gps"
+	req_tech = list("materials" = 2, "magnets" = 3, "bluespace" = 3)
+	build_type = PROTOLATHE
+	materials = list("$metal" = 500, "$glass" = 1000)
+	build_path = /obj/item/device/gps
+
 datum/design/subspace_ansible
 	name = "Subspace Ansible"
 	desc = "A compact module capable of sensing extradimensional activity."
@@ -1137,7 +1156,7 @@ datum/design/basic_cell
 	req_tech = list("powerstorage" = 1)
 	build_type = PROTOLATHE | AUTOLATHE |MECHFAB
 	materials = list("$metal" = 700, "$glass" = 50)
-	build_path = /obj/item/weapon/cell
+	build_path = /obj/item/weapon/stock_parts/cell
 	category = "Misc"
 
 datum/design/high_cell
@@ -1147,7 +1166,7 @@ datum/design/high_cell
 	req_tech = list("powerstorage" = 2)
 	build_type = PROTOLATHE | AUTOLATHE | MECHFAB
 	materials = list("$metal" = 700, "$glass" = 60)
-	build_path = /obj/item/weapon/cell/high
+	build_path = /obj/item/weapon/stock_parts/cell/high
 	category = "Misc"
 
 datum/design/super_cell
@@ -1158,7 +1177,7 @@ datum/design/super_cell
 	reliability = 75
 	build_type = PROTOLATHE | MECHFAB
 	materials = list("$metal" = 700, "$glass" = 70)
-	build_path = /obj/item/weapon/cell/super
+	build_path = /obj/item/weapon/stock_parts/cell/super
 	category = "Misc"
 
 datum/design/hyper_cell
@@ -1169,7 +1188,7 @@ datum/design/hyper_cell
 	reliability = 70
 	build_type = PROTOLATHE | MECHFAB
 	materials = list("$metal" = 400, "$gold" = 150, "$silver" = 150, "$glass" = 70)
-	build_path = /obj/item/weapon/cell/hyper
+	build_path = /obj/item/weapon/stock_parts/cell/hyper
 	category = "Misc"
 
 datum/design/light_replacer
@@ -1184,6 +1203,132 @@ datum/design/light_replacer
 ////////////////////////////////////////
 //////////////MISC Boards///////////////
 ////////////////////////////////////////
+
+datum/design/smes
+	name = "SMES Board"
+	desc = "The circuit board for a SMES."
+	id = "smes"
+	req_tech = list("programming" = 4, "power" = 5, "engineering" = 4)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/smes
+
+datum/design/turbine_computer
+	name = "Power Turbine Console Board"
+	desc = "The circuit board for a power turbine console."
+	id = "power_turbine_console"
+	req_tech = list("programming" = 4, "power" = 4, "engineering" = 4)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/turbine_computer
+
+datum/design/power_compressor
+	name = "Power Compressor Board"
+	desc = "The circuit board for a power compressor."
+	id = "power_compressor"
+	req_tech = list("programming" = 4, "power" = 5, "engineering" = 4)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/power_compressor
+
+datum/design/power_turbine
+	name = "Power Turbine Board"
+	desc = "The circuit board for a power turbine."
+	id = "power_turbine"
+	req_tech = list("programming" = 4, "power" = 4, "engineering" = 5)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/power_turbine
+
+datum/design/teleport_station
+	name = "Teleportation Station Board"
+	desc = "The circuit board for a teleportation station."
+	id = "tele_station"
+	req_tech = list("programming" = 4, "bluespace" = 4, "engineering" = 4)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/teleporter_station
+
+datum/design/teleport_hub
+	name = "Teleportation Hub Board"
+	desc = "The circuit board for a teleportation hub."
+	id = "tele_hub"
+	req_tech = list("programming" = 3, "bluespace" = 5, "materials" = 4, "engineering" = 5)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/teleporter_hub
+
+datum/design/telepad
+	name = "Telepad Board"
+	desc = "The circuit board for a telescience telepad."
+	id = "telepad"
+	req_tech = list("programming" = 4, "bluespace" = 4, "materials" = 3, "engineering" = 3)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/telesci_pad
+
+datum/design/sleeper
+	name = "Sleeper Board"
+	desc = "The circuit board for a sleeper."
+	id = "sleeper"
+	req_tech = list("programming" = 3, "biotech" = 2, "materials" = 3, "engineering" = 3)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/sleeper
+
+datum/design/cryotube
+	name = "Cryotube Board"
+	desc = "The circuit board for a cryotube."
+	id = "cryotube"
+	req_tech = list("programming" = 4, "biotech" = 3, "engineering" = 4)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/cryo_tube
+
+datum/design/thermomachine
+	name = "Freezer/Heater Board"
+	desc = "The circuit board for a freezer/heater."
+	id = "thermomachine"
+	req_tech = list("programming" = 3, "plasmatech" = 3)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/thermomachine
+
+datum/design/biogenerator
+	name = "Biogenerator Board"
+	desc = "The circuit board for a biogenerator."
+	id = "biogenerator"
+	req_tech = list("programming" = 3, "biotech" = 2, "materials" = 3)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/biogenerator
+
+datum/design/hydroponics
+	name = "Hydroponics Tray Board"
+	desc = "The circuit board for a hydroponics tray."
+	id = "hydro_tray"
+	req_tech = list("programming" = 1, "biotech" = 1)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/hydroponics
+
+datum/design/microwave
+	name = "Microwave Board"
+	desc = "The circuit board for a microwave."
+	id = "microwave"
+	req_tech = list("programming" = 1)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/microwave
+
+datum/design/chem_dispenser
+	name = "Portable Chem Dispenser Board"
+	desc = "The circuit board for a portable chem dispenser."
+	id = "chem_dispenser"
+	req_tech = list("programming" = 4, "biotech" = 3, "engineering" = 4, "materials" = 4, "plasmatech" = 3)
+	build_type = IMPRINTER
+	materials = list("$glass" = 2000, "sacid" = 20)
+	build_path = /obj/item/weapon/circuitboard/chem_dispenser
 
 datum/design/destructive_analyzer
 	name = "Destructive Analyzer Board"
@@ -1461,7 +1606,7 @@ datum/design/flora_gun
 	id = "flora_gun"
 	req_tech = list("materials" = 2, "biotech" = 3, "powerstorage" = 3)
 	build_type = PROTOLATHE
-	materials = list("$metal" = 2000, "$glass" = 500, "$uranium" = 500)
+	materials = list("$metal" = 2000, "$glass" = 500, "radium" = 20)
 	build_path = /obj/item/weapon/gun/energy/floragun
 
 datum/design/large_grenade
@@ -1582,15 +1727,6 @@ datum/design/drill_diamond
 	reliability = 79
 	build_path = /obj/item/weapon/pickaxe/diamonddrill
 
-datum/design/mesons
-	name = "Optical Meson Scanners"
-	desc = "Used for seeing walls, floors, and stuff through anything."
-	id = "mesons"
-	req_tech = list("magnets" = 2, "engineering" = 2)
-	build_type = PROTOLATHE
-	materials = list("$metal" = 50, "$glass" = 50)
-	build_path = /obj/item/clothing/glasses/meson
-
 /////////////////////////////////////////
 //////////////Blue Space/////////////////
 /////////////////////////////////////////
@@ -1696,7 +1832,6 @@ datum/design/borg_syndicate_module
 //////////////////Misc///////////////////
 /////////////////////////////////////////
 
-
 datum/design/welding_mask
 	name = "Welding Gas Mask"
 	desc = "A gas mask with built in welding goggles and face shield. Looks like a skull, clearly designed by a nerd."
@@ -1705,3 +1840,30 @@ datum/design/welding_mask
 	build_type = PROTOLATHE
 	materials = list("$metal" = 4000, "$glass" = 2000)
 	build_path = /obj/item/clothing/mask/gas/welding
+
+datum/design/mesons
+	name = "Optical Meson Scanners"
+	desc = "Used for seeing walls, floors, and stuff through anything."
+	id = "mesons"
+	req_tech = list("magnets" = 2, "engineering" = 2)
+	build_type = PROTOLATHE
+	materials = list("$metal" = 50, "$glass" = 50)
+	build_path = /obj/item/clothing/glasses/meson
+
+datum/design/advanced_mesons
+	name = "Advanced Optical Meson Scanner"
+	desc = "More powerful than your standard mesons, these ones make everything appear to be lit extremely brightly."
+	id = "advanced_mesons"
+	req_tech = list("magnets" = 4, "engineering" = 4)
+	build_type = PROTOLATHE
+	materials = list("$metal" = 100, "$glass" = 100)
+	build_path = /obj/item/clothing/glasses/meson/advanced
+
+datum/design/night_vision_goggles
+	name = "Night Vision Goggles"
+	desc = "Goggles that let you see through darkness unhindered."
+	id = "night_visision_goggles"
+	req_tech = list("magnets" = 4)
+	build_type = PROTOLATHE
+	materials = list("$metal" = 100, "$glass" = 100, "$uranium" = 1000)
+	build_path = /obj/item/clothing/glasses/night

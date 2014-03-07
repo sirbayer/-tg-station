@@ -27,7 +27,7 @@
 
 	var/obj/item/device/radio/borg/radio = null
 	var/mob/living/silicon/ai/connected_ai = null
-	var/obj/item/weapon/cell/cell = null
+	var/obj/item/weapon/stock_parts/cell/cell = null
 	var/obj/machinery/camera/camera = null
 
 	var/obj/item/device/mmi/mmi = null
@@ -75,7 +75,7 @@
 	updateicon()
 
 	if(!cell)
-		cell = new /obj/item/weapon/cell(src)
+		cell = new /obj/item/weapon/stock_parts/cell(src)
 		cell.maxcharge = 7500
 		cell.charge = 7500
 
@@ -128,6 +128,7 @@
 	if(module)
 		return
 	var/mod = input("Please, select a module!", "Robot", null, null) in list("Standard", "Engineering", "Medical", "Miner", "Janitor","Service", "Security")
+	var/animation_length=0
 	if(module)
 		return
 	switch(mod)
@@ -145,11 +146,20 @@
 			hands.icon_state = "service"
 			var/icontype = input("Select an icon!", "Robot", null, null) in list("Waitress", "Bro", "Butler", "Kent", "Rich")
 			switch(icontype)
-				if("Waitress")	icon_state = "Service"
-				if("Kent")		icon_state = "toiletbot"
-				if("Bro")		icon_state = "Brobot"
-				if("Rich")		icon_state = "maximillion"
-				else				icon_state = "Service2"
+				if("Waitress")
+					icon_state = "service_female"
+					animation_length=45
+				if("Kent")
+					icon_state = "toiletbot"
+				if("Bro")
+					icon_state = "brobot"
+					animation_length=54
+				if("Rich")
+					icon_state = "maximillion"
+					animation_length=60
+				else
+					icon_state = "service_male"
+					animation_length=43
 			modtype = "Butler"
 			feedback_inc("cyborg_service",1)
 
@@ -157,7 +167,8 @@
 			updatename(mod)
 			module = new /obj/item/weapon/robot_module/miner(src)
 			hands.icon_state = "miner"
-			icon_state = "Miner"
+			icon_state = "minerborg"
+			animation_length = 30
 			modtype = "Miner"
 			feedback_inc("cyborg_miner",1)
 
@@ -165,7 +176,8 @@
 			updatename(mod)
 			module = new /obj/item/weapon/robot_module/medical(src)
 			hands.icon_state = "medical"
-			icon_state = "surgeon"
+			icon_state = "mediborg"
+			animation_length = 35
 			modtype = "Med"
 			status_flags &= ~CANPUSH
 			feedback_inc("cyborg_medical",1)
@@ -174,7 +186,8 @@
 			updatename(mod)
 			module = new /obj/item/weapon/robot_module/security(src)
 			hands.icon_state = "security"
-			icon_state = "bloodhound"
+			icon_state = "secborg"
+			animation_length = 28
 			modtype = "Sec"
 			//speed = -1 Secborgs have nerfed tasers now, so the speed boost is not necessary
 			status_flags &= ~CANPUSH
@@ -184,7 +197,8 @@
 			updatename(mod)
 			module = new /obj/item/weapon/robot_module/engineering(src)
 			hands.icon_state = "engineer"
-			icon_state = "landmate"
+			icon_state = "engiborg"
+			animation_length = 45
 			modtype = "Eng"
 			feedback_inc("cyborg_engineering",1)
 
@@ -192,12 +206,26 @@
 			updatename(mod)
 			module = new /obj/item/weapon/robot_module/janitor(src)
 			hands.icon_state = "janitor"
-			icon_state = "mopgearrex"
+			icon_state = "janiborg"
+			animation_length = 22
 			modtype = "Jan"
 			feedback_inc("cyborg_janitor",1)
 
 	overlays -= "eyes" //Takes off the eyes that it started with
+
+	transform_animation(animation_length)
 	updateicon()
+
+/mob/living/silicon/robot/proc/transform_animation(animation_length)
+	if(!animation_length)
+		return
+	icon = 'icons/mob/robot_transformations.dmi'
+	src.dir = SOUTH
+	notransform = 1
+	flick(icon_state, src)
+	sleep(animation_length+1)
+	notransform = 0
+	icon = 'icons/mob/robots.dmi'
 
 /mob/living/silicon/robot/proc/updatename(var/prefix as text)
 
@@ -385,8 +413,8 @@
 			user << "Need more welding fuel!"
 			return
 
-	else if(istype(W, /obj/item/weapon/cable_coil) && wiresexposed)
-		var/obj/item/weapon/cable_coil/coil = W
+	else if(istype(W, /obj/item/stack/cable_coil) && wiresexposed)
+		var/obj/item/stack/cable_coil/coil = W
 		adjustFireLoss(-30)
 		updatehealth()
 		for(var/mob/O in viewers(user, null))
@@ -406,7 +434,7 @@
 				opened = 1
 				updateicon()
 
-	else if (istype(W, /obj/item/weapon/cell) && opened)	// trying to put a cell inside
+	else if (istype(W, /obj/item/weapon/stock_parts/cell) && opened)	// trying to put a cell inside
 		if(wiresexposed)
 			user << "Close the cover first."
 		else if(cell)
@@ -765,18 +793,18 @@
 		if(icon_state == "toiletbot")
 			overlays.Cut()
 			overlays += "eyes-toiletbot"
-		if(icon_state == "bloodhound")
+		if(icon_state == "secborg")
 			overlays.Cut()
-			overlays += "eyes-bloodhound"
-		if(icon_state =="landmate")
+			overlays += "eyes-secborg"
+		if(icon_state =="engiborg")
 			overlays.Cut()
-			overlays += "eyes-landmate"
-		if(icon_state =="mopgearrex")
+			overlays += "eyes-engiborg"
+		if(icon_state =="janiborg")
 			overlays.Cut()
-			overlays += "eyes-mopgearrex"
-		if(icon_state =="Miner" || icon_state =="Miner+j")
+			overlays += "eyes-janiborg"
+		if(icon_state =="minerborg" || icon_state =="Miner+j")
 			overlays.Cut()
-			overlays += "eyes-Miner"
+			overlays += "eyes-minerborg"
 		if(icon_state =="syndie_bloodhound")
 			overlays.Cut()
 			overlays+= "eyes-syndie_bloodhound"
@@ -1005,7 +1033,7 @@
 		robot_suit.l_leg = null
 		robot_suit.r_leg.loc = T
 		robot_suit.r_leg = null
-		new /obj/item/weapon/cable_coil(T, robot_suit.chest.wires)
+		new /obj/item/stack/cable_coil(T, robot_suit.chest.wires)
 		robot_suit.chest.loc = T
 		robot_suit.chest.wires = 0.0
 		robot_suit.chest = null
@@ -1026,7 +1054,7 @@
 		new /obj/item/robot_parts/robot_suit(T)
 		new /obj/item/robot_parts/l_leg(T)
 		new /obj/item/robot_parts/r_leg(T)
-		new /obj/item/weapon/cable_coil(T, 1)
+		new /obj/item/stack/cable_coil(T, 1)
 		new /obj/item/robot_parts/chest(T)
 		new /obj/item/robot_parts/l_arm(T)
 		new /obj/item/robot_parts/r_arm(T)
@@ -1045,6 +1073,7 @@
 	lawupdate = 0
 	scrambledcodes = 1
 	modtype = "Synd"
+	faction = "syndicate"
 
 /mob/living/silicon/robot/syndicate/New(loc)
 	..()

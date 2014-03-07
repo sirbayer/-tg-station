@@ -71,6 +71,7 @@
 	g_amt = 5000
 	origin_tech = "materials=1;biotech=1"
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
+	hitsound = 'sound/weapons/bladeslice.ogg'
 
 	suicide_act(mob/user)
 		viewers(user) << pick("<span class='suicide'>[user] is slitting \his wrists with [src]! It looks like \he's trying to commit suicide.</span>", \
@@ -90,7 +91,7 @@
 	force = 15.0
 	w_class = 3.0
 	throwforce = 9.0
-	throw_speed = 3
+	throw_speed = 2
 	throw_range = 5
 	m_amt = 20000
 	g_amt = 10000

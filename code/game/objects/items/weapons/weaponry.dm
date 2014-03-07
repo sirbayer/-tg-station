@@ -6,8 +6,8 @@
 	slot_flags = SLOT_BELT
 	throwforce = 0
 	w_class = 1.0
-	throw_speed = 7
-	throw_range = 15
+	throw_speed = 3
+	throw_range = 7
 	attack_verb = list("banned")
 
 /obj/item/weapon/banhammer/suicide_act(mob/user)
@@ -17,6 +17,7 @@
 /obj/item/weapon/banhammer/attack(mob/M, mob/user)
 	M << "<font color='red'><b> You have been banned FOR NO REISIN by [user]<b></font>"
 	user << "<font color='red'> You have <b>BANNED</b> [M]</font>"
+	playsound(loc, 'sound/effects/adminhelp.ogg', 15) //keep it at 15% volume so people don't jump out of their skin too much
 
 
 /obj/item/weapon/nullrod
@@ -26,7 +27,7 @@
 	item_state = "nullrod"
 	slot_flags = SLOT_BELT
 	force = 15
-	throw_speed = 1
+	throw_speed = 3
 	throw_range = 4
 	throwforce = 10
 	w_class = 1
@@ -56,6 +57,7 @@
 	desc = "What are you standing around staring at this for? Get to killing!"
 	icon_state = "claymore"
 	item_state = "claymore"
+	hitsound = 'sound/weapons/bladeslice.ogg'
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	force = 40
@@ -69,10 +71,6 @@
 	suicide_act(mob/user)
 		viewers(user) << "<span class='suicide'>[user] is falling on the [src.name]! It looks like \he's trying to commit suicide.</span>"
 		return(BRUTELOSS)
-
-/obj/item/weapon/claymore/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
-	playsound(loc, 'sound/weapons/bladeslice.ogg', 50, 1, -1)
-	return ..()
 
 /obj/item/weapon/katana
 	name = "katana"
@@ -111,8 +109,8 @@ obj/item/weapon/wirerod/attackby(var/obj/item/I, mob/user as mob)
 	if(istype(I, /obj/item/weapon/shard))
 		var/obj/item/weapon/twohanded/spear/S = new /obj/item/weapon/twohanded/spear
 
-		user.before_take_item(I)
-		user.before_take_item(src)
+		user.unEquip(I)
+		user.unEquip(src)
 
 		user.put_in_hands(S)
 		user << "<span class='notice'>You fasten the glass shard to the top of the rod with the cable.</span>"
@@ -122,8 +120,8 @@ obj/item/weapon/wirerod/attackby(var/obj/item/I, mob/user as mob)
 	else if(istype(I, /obj/item/weapon/wirecutters))
 		var/obj/item/weapon/melee/baton/cattleprod/P = new /obj/item/weapon/melee/baton/cattleprod
 
-		user.before_take_item(I)
-		user.before_take_item(src)
+		user.unEquip(I)
+		user.unEquip(src)
 
 		user.put_in_hands(P)
 		user << "<span class='notice'>You fasten the wirecutters to the top of the rod with the cable, prongs outward.</span>"

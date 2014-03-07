@@ -16,17 +16,16 @@
 	var/maturation = 0
 	var/production = 0
 	var/yield = 0
-	var/potency = -1
 	var/plant_type = 0
-	var/dry = 0
 	icon = 'icons/obj/harvest.dmi'
+	potency = -1
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/New(newloc,newpotency)
 	if (!isnull(newpotency))
 		potency = newpotency
 	..()
-	pixel_x = rand(-5.0, 5)
-	pixel_y = rand(-5.0, 5)
+	pixel_x = rand(-5, 5)
+	pixel_y = rand(-5, 5)
 
 	transform *= TransformUsingVariable(potency, 100, 0.5) //Makes the resulting produce's sprite larger or smaller based on potency!
 
@@ -82,7 +81,7 @@
 	desc = "Needs some butter!"
 	icon_state = "corn"
 	potency = 40
-	trash = /obj/item/weapon/corncob
+	trash = /obj/item/weapon/grown/corncob
 	dried_type = /obj/item/weapon/reagent_containers/food/snacks/grown/corn
 
 	New()
@@ -149,12 +148,12 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/potato/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	..()
-	if(istype(W, /obj/item/weapon/cable_coil))
+	if(istype(W, /obj/item/stack/cable_coil))
 		if(W:amount >= 5)
 			W:amount -= 5
 			if(!W:amount) del(W)
 			user << "<span class='notice'>You add some cable to the potato and slide it inside the battery encasing.</span>"
-			var/obj/item/weapon/cell/potato/pocell = new /obj/item/weapon/cell/potato(user.loc)
+			var/obj/item/weapon/stock_parts/cell/potato/pocell = new /obj/item/weapon/stock_parts/cell/potato(user.loc)
 			pocell.maxcharge = src.potency * 10
 			pocell.charge = pocell.maxcharge
 			del(src)
@@ -229,15 +228,15 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/glowberries/Del()
 	if(istype(loc,/mob))
-		loc.SetLuminosity(round(loc.luminosity - potency/5,1))
+		loc.AddLuminosity(round(-potency/5,1))
 	..()
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/glowberries/pickup(mob/user)
 	src.SetLuminosity(0)
-	user.SetLuminosity(round(user.luminosity + (potency/5),1))
+	user.AddLuminosity(round(potency/5,1))
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/glowberries/dropped(mob/user)
-	user.SetLuminosity(round(user.luminosity - (potency/5),1))
+	user.AddLuminosity(round(-potency/5,1))
 	src.SetLuminosity(round(potency/5,1))
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/cocoapod
@@ -477,7 +476,7 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "banana"
 	item_state = "banana"
-	trash = /obj/item/weapon/bananapeel
+	trash = /obj/item/weapon/grown/bananapeel
 	dried_type = /obj/item/weapon/reagent_containers/food/snacks/grown/banana
 
 	New()
@@ -881,7 +880,12 @@
 /obj/item/weapon/reagent_containers/food/snacks/grown/mushroom/walkingmushroom/attack_self(mob/user as mob)
 	if(istype(user.loc,/turf/space))
 		return
-	new /mob/living/simple_animal/mushroom(user.loc)
+	var/mob/living/simple_animal/hostile/mushroom/M = new /mob/living/simple_animal/hostile/mushroom(user.loc)
+	M.maxHealth += round(endurance / 4)
+	M.melee_damage_lower += round(potency / 20)
+	M.melee_damage_upper += round(potency / 20)
+	M.move_to_delay -= round(production / 50)
+	M.health = M.maxHealth
 	del(src)
 
 	user << "<span class='notice'>You plant the walking mushroom.</span>"
@@ -936,15 +940,15 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/mushroom/glowshroom/Del()
 	if(istype(loc,/mob))
-		loc.SetLuminosity(round(loc.luminosity - potency/10,1))
+		loc.AddLuminosity(round(-potency/10,1))
 	..()
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/mushroom/glowshroom/pickup(mob/user)
 	SetLuminosity(0)
-	user.SetLuminosity(round(user.luminosity + (potency/10),1))
+	user.AddLuminosity(round(potency/10,1))
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/mushroom/glowshroom/dropped(mob/user)
-	user.SetLuminosity(round(user.luminosity - (potency/10),1))
+	user.AddLuminosity(round(-potency/10,1))
 	SetLuminosity(round(potency/10,1))
 
 //This object is just a transition object. All it does is make dosh and delete itself. -Cheridan

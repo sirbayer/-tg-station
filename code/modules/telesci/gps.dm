@@ -9,6 +9,7 @@ var/list/GPS_list = list()
 	origin_tech = "programming=2;engineering=2"
 	var/gpstag = "COM0"
 	var/emped = 0
+	var/turf/locked_location
 
 /obj/item/device/gps/New()
 	..()
@@ -37,6 +38,8 @@ var/list/GPS_list = list()
 	else
 		t += "<BR><A href='?src=\ref[src];tag=1'>Set Tag</A> "
 		t += "<BR>Tag: [gpstag]"
+		if(locked_location && locked_location.loc)
+			t += "<BR>Bluespace coordinates saved: [locked_location.loc]"
 
 		for(var/obj/item/device/gps/G in GPS_list)
 			var/turf/pos = get_turf(G)
@@ -69,3 +72,8 @@ var/list/GPS_list = list()
 /obj/item/device/gps/engineering
 	icon_state = "gps-e"
 	gpstag = "ENG0"
+
+/obj/item/device/gps/mining
+	icon_state = "gps-m"
+	gpstag = "MINE0"
+	desc = "A positioning system helpful for rescuing trapped or injured miners, keeping one on you at all times while mining might just save your life."

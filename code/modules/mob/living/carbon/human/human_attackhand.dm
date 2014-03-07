@@ -149,9 +149,9 @@
 				//End BubbleWrap
 
 				if(!talked)	//BubbleWrap
-					drop_item()
-					visible_message("<span class='danger'>[M] has disarmed [src]!</span>", \
-									"<span class='userdanger'>[M] has disarmed [src]!</span>")
+					if(drop_item())
+						visible_message("<span class='danger'>[M] has disarmed [src]!</span>", \
+										"<span class='userdanger'>[M] has disarmed [src]!</span>")
 				playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 				return
 

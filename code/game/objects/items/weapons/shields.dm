@@ -9,7 +9,7 @@
 	slot_flags = SLOT_BACK
 	force = 5.0
 	throwforce = 5.0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 4
 	w_class = 4.0
 	g_amt = 7500
@@ -43,7 +43,7 @@
 	icon_state = "eshield0" // eshield1 for expanded
 	force = 3.0
 	throwforce = 5.0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 4
 	w_class = 1
 	origin_tech = "materials=4;magnets=3;syndicate=4"
@@ -66,14 +66,14 @@
 		force = 10
 		icon_state = "eshield[active]"
 		w_class = 4
-		playsound(user, 'sound/weapons/saberon.ogg', 50, 1)
+		playsound(user, 'sound/weapons/saberon.ogg', 35, 1)
 		user << "<span class='notice'>[src] is now active.</span>"
 		reflect_chance = 40
 	else
 		force = 3
 		icon_state = "eshield[active]"
 		w_class = 1
-		playsound(user, 'sound/weapons/saberoff.ogg', 50, 1)
+		playsound(user, 'sound/weapons/saberoff.ogg', 35, 1)
 		user << "<span class='notice'>[src] can now be concealed.</span>"
 		reflect_chance = 0
 	add_fingerprint(user)

@@ -91,6 +91,8 @@
 		return 0
 	else if(AM.density || AM.anchored)
 		return 0
+	else if(AM.flags & NODROP)
+		return 0
 	AM.loc = src
 	return 1
 
@@ -148,7 +150,7 @@
 	return
 
 /obj/structure/closet/attack_animal(mob/living/simple_animal/user as mob)
-	if(user.wall_smash)
+	if(user.environment_smash)
 		visible_message("\red [user] destroys the [src]. ")
 		for(var/atom/movable/A as mob|obj in src)
 			A.loc = src.loc
@@ -193,7 +195,8 @@
 		if(isrobot(user))
 			return
 
-		user.drop_item(src)
+		if(user.drop_item())
+			W.Move(loc)
 
 	else if(istype(W, /obj/item/weapon/packageWrap))
 		return

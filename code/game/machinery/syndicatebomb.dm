@@ -102,6 +102,9 @@
 /obj/machinery/syndicatebomb/attack_hand(var/mob/user)
 	interact(user)
 
+/obj/machinery/syndicatebomb/attack_ai()
+	return
+
 /obj/machinery/syndicatebomb/interact(var/mob/user)
 	if(wires)
 		wires.Interact(user)
@@ -232,6 +235,8 @@
 	origin_tech = null
 
 /obj/item/weapon/bombcore/badmin/defuse() //because we wouldn't want them being harvested by players
+	var/obj/machinery/syndicatebomb/B = src.loc
+	del(B)
 	del(src)
 
 /obj/item/weapon/bombcore/badmin/summon/
@@ -239,13 +244,14 @@
 	var/amt_summon = 1
 
 /obj/item/weapon/bombcore/badmin/summon/detonate()
+	var/obj/machinery/syndicatebomb/B = src.loc
 	for(var/i = 0; i < amt_summon; i++)
 		var/atom/movable/X = new summon_path
 		X.loc = get_turf(src)
 		if(prob(50))
 			for(var/j = 1, j <= rand(1, 3), j++)
 				step(X, pick(NORTH,SOUTH,EAST,WEST))
-
+	del(B)
 	del(src)
 
 /obj/item/weapon/bombcore/badmin/summon/clown

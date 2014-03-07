@@ -150,11 +150,13 @@ obj/item/weapon/twohanded/
 	name = "fire axe"
 	desc = "Truly, the weapon of a madman. Who would think to fight fire with an axe?"
 	force = 5
+	throwforce = 15
 	w_class = 4.0
 	slot_flags = SLOT_BACK
 	force_unwielded = 5
 	force_wielded = 24 // Was 18, Buffed - RobRichards/RR
 	attack_verb = list("attacked", "chopped", "cleaved", "torn", "cut")
+	hitsound = 'sound/weapons/bladeslice.ogg'
 
 /obj/item/weapon/twohanded/fireaxe/update_icon()  //Currently only here to fuck with the on-mob icons.
 	icon_state = "fireaxe[wielded]"
@@ -184,7 +186,7 @@ obj/item/weapon/twohanded/
 	desc = "Handle with care."
 	force = 3
 	throwforce = 5.0
-	throw_speed = 1
+	throw_speed = 3
 	throw_range = 5
 	w_class = 2.0
 	force_unwielded = 3
@@ -275,7 +277,8 @@ obj/item/weapon/twohanded/
 	slot_flags = SLOT_BACK
 	force_unwielded = 10
 	force_wielded = 18 // Was 13, Buffed - RR
-	throwforce = 15
+	throwforce = 20
+	throw_speed = 3
 	flags = NOSHIELD
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	attack_verb = list("attacked", "poked", "jabbed", "torn", "gored")

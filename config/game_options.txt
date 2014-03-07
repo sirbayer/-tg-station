@@ -102,7 +102,7 @@ PROBABILITY SANDBOX 0
 ## Used as (Antagonists = Population / Coeff)
 ## Set to 0 to disable scaling and use default numbers instead.
 TRAITOR_SCALING_COEFF 6
-CHANGELING_SCALING_COEFF 10
+CHANGELING_SCALING_COEFF 7
 
 ## Uncomment to prohibit jobs that start with loyalty
 ## implants from being most antagonists.
@@ -110,6 +110,9 @@ CHANGELING_SCALING_COEFF 10
 
 ## If late-joining players have a chance to become a traitor/changeling
 ALLOW_LATEJOIN_ANTAGONISTS
+
+## Uncomment to allow players to see the set odds of different rounds in secret/random in the get server revision screen. This will NOT tell the current roundtype.
+#SHOW_GAME_TYPE_ODDS
 
 ### RANDOM EVENTS ###
 
@@ -146,6 +149,9 @@ GATEWAY_DELAY 18000
 
 ## Uncomment to give everyone maint access.
 #EVERYONE_HAS_MAINT_ACCESS
+
+## Comment this to make security officers spawn in departmental security posts
+SEC_START_BRIG
 
 
 ### GHOST INTERACTION ###

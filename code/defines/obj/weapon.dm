@@ -5,7 +5,7 @@
 	icon_state = "red_phone"
 	force = 3.0
 	throwforce = 2.0
-	throw_speed = 1
+	throw_speed = 3
 	throw_range = 4
 	w_class = 2
 	attack_verb = list("called", "rang")
@@ -34,7 +34,7 @@
 	anchored = 0.0
 	force = 0
 	throwforce = 0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 2
 	w_class = 1.0
 
@@ -66,28 +66,6 @@
 	icon_state = "spacecash1000"
 	desc = "It's worth 1000 credits."
 
-/obj/item/weapon/bananapeel
-	name = "banana peel"
-	desc = "A peel from a banana."
-	icon = 'icons/obj/items.dmi'
-	icon_state = "banana_peel"
-	item_state = "banana_peel"
-	w_class = 1.0
-	throwforce = 0
-	throw_speed = 4
-	throw_range = 20
-
-/obj/item/weapon/corncob
-	name = "corn cob"
-	desc = "A reminder of meals gone by."
-	icon = 'icons/obj/harvest.dmi'
-	icon_state = "corncob"
-	item_state = "corncob"
-	w_class = 1.0
-	throwforce = 0
-	throw_speed = 4
-	throw_range = 20
-
 /obj/item/weapon/soap
 	name = "soap"
 	desc = "A cheap bar of soap. Doesn't smell."
@@ -96,8 +74,8 @@
 	icon_state = "soap"
 	w_class = 1.0
 	throwforce = 0
-	throw_speed = 4
-	throw_range = 20
+	throw_speed = 3
+	throw_range = 7
 
 /obj/item/weapon/soap/nanotrasen
 	desc = "A Nanotrasen brand bar of soap. Smells of plasma."
@@ -117,23 +95,26 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "bike_horn"
 	item_state = "bike_horn"
-	hitsound = 'sound/items/bikehorn.ogg'
-	throwforce = 3
+	throwforce = 0
+	hitsound = null //To prevent tap.ogg playing, as the item lacks of force
 	w_class = 1.0
 	throw_speed = 3
-	throw_range = 15
+	throw_range = 7
 	attack_verb = list("HONKED")
 	var/spam_flag = 0
 
+/obj/item/weapon/bikehorn/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
+	playsound(loc, 'sound/items/bikehorn.ogg', 50, 1, -1) //plays instead of tap.ogg!
+	return ..()
 
 /obj/item/weapon/c_tube
 	name = "cardboard tube"
 	desc = "A tube... of cardboard."
 	icon = 'icons/obj/items.dmi'
 	icon_state = "c_tube"
-	throwforce = 1
+	throwforce = 0
 	w_class = 1.0
-	throw_speed = 4
+	throw_speed = 3
 	throw_range = 5
 
 
@@ -144,7 +125,7 @@
 	icon_state = "cane"
 	item_state = "stick"
 	force = 5.0
-	throwforce = 7.0
+	throwforce = 5
 	w_class = 2.0
 	m_amt = 50
 	attack_verb = list("bludgeoned", "whacked", "disciplined", "thrashed")
@@ -188,7 +169,7 @@
 
 /obj/item/weapon/legcuffs/beartrap
 	name = "bear trap"
-	throw_speed = 2
+	throw_speed = 1
 	throw_range = 1
 	icon_state = "beartrap0"
 	desc = "A trap used to catch bears and other legged creatures."
@@ -236,7 +217,7 @@
 	icon_state = "caution"
 	force = 1.0
 	throwforce = 3.0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 5
 	w_class = 2.0
 	attack_verb = list("warned", "cautioned", "smashed")
@@ -261,7 +242,7 @@
 	icon_state = "staff"
 	force = 3.0
 	throwforce = 5.0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 5
 	w_class = 2.0
 	flags = NOSHIELD
@@ -281,7 +262,7 @@
 	item_state = "stick"
 	force = 3.0
 	throwforce = 5.0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 5
 	w_class = 2.0
 	flags = NOSHIELD
@@ -366,15 +347,12 @@
 	force = 12.0
 	w_class = 1.0
 	throwforce = 15.0
-	throw_speed = 4
+	throw_speed = 3
 	throw_range = 4
 	m_amt = 15000
 	origin_tech = "materials=2;combat=1"
 	attack_verb = list("chopped", "torn", "cut")
-
-/obj/item/weapon/hatchet/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
-	playsound(loc, 'sound/weapons/bladeslice.ogg', 50, 1, -1)
-	return ..()
+	hitsound = 'sound/weapons/bladeslice.ogg'
 
 /obj/item/weapon/scythe
 	icon_state = "scythe0"
@@ -382,13 +360,14 @@
 	desc = "A sharp and curved blade on a long fibremetal handle, this tool makes it easy to reap what you sow."
 	force = 13.0
 	throwforce = 5.0
-	throw_speed = 1
+	throw_speed = 2
 	throw_range = 3
 	w_class = 4.0
 	flags = CONDUCT | NOSHIELD
 	slot_flags = SLOT_BACK
 	origin_tech = "materials=2;combat=2"
 	attack_verb = list("chopped", "sliced", "cut", "reaped")
+	hitsound = 'sound/weapons/bladeslice.ogg'
 
 /obj/item/weapon/scythe/afterattack(atom/A, mob/user as mob, proximity)
 	if(!proximity) return
@@ -420,10 +399,24 @@
 
 ///////////////////////////////////////Stock Parts /////////////////////////////////
 
+/obj/item/weapon/storage/part_replacer
+	name = "Rapid Part Exchange Device"
+	desc = "Special mechanical module made to store, sort, and apply standard machine parts."
+	icon_state = "RPED"
+	item_state = "RPED"
+	w_class = 5
+	can_hold = list("/obj/item/weapon/stock_parts")
+	storage_slots = 14
+	use_to_pickup = 1
+	allow_quick_gather = 1
+	allow_quick_empty = 1
+	collection_mode = 1
+	max_w_class = 3
+	max_combined_w_class = 28
+
 /obj/item/weapon/stock_parts
 	name = "stock part"
 	desc = "What?"
-	gender = PLURAL
 	icon = 'icons/obj/stock_parts.dmi'
 	w_class = 2.0
 	var/rating = 1
@@ -483,6 +476,7 @@
 /obj/item/weapon/stock_parts/capacitor/adv
 	name = "advanced capacitor"
 	desc = "An advanced capacitor used in the construction of a variety of devices."
+	icon_state = "adv_capacitor"
 	origin_tech = "powerstorage=3"
 	rating = 2
 	m_amt = 50
@@ -491,7 +485,7 @@
 /obj/item/weapon/stock_parts/scanning_module/adv
 	name = "advanced scanning module"
 	desc = "A compact, high resolution scanning module used in the construction of certain devices."
-	icon_state = "scan_module"
+	icon_state = "adv_scan_module"
 	origin_tech = "magnets=3"
 	rating = 2
 	m_amt = 50
@@ -501,7 +495,7 @@
 	name = "nano-manipulator"
 	desc = "A tiny little manipulator used in the construction of certain devices."
 	icon_state = "nano_mani"
-	origin_tech = "materials=3,programming=2"
+	origin_tech = "materials=3;programming=2"
 	rating = 2
 	m_amt = 30
 
@@ -527,6 +521,7 @@
 /obj/item/weapon/stock_parts/capacitor/super
 	name = "super capacitor"
 	desc = "A super-high capacity capacitor used in the construction of a variety of devices."
+	icon_state = "super_capacitor"
 	origin_tech = "powerstorage=5;materials=4"
 	rating = 3
 	m_amt = 50
@@ -535,6 +530,7 @@
 /obj/item/weapon/stock_parts/scanning_module/phasic
 	name = "phasic scanning module"
 	desc = "A compact, high resolution phasic scanning module used in the construction of certain devices."
+	icon_state = "super_scan_module"
 	origin_tech = "magnets=5"
 	rating = 3
 	m_amt = 50
@@ -544,7 +540,7 @@
 	name = "pico-manipulator"
 	desc = "A tiny little manipulator used in the construction of certain devices."
 	icon_state = "pico_mani"
-	origin_tech = "materials=5,programming=2"
+	origin_tech = "materials=5;programming=2"
 	rating = 3
 	m_amt = 30
 

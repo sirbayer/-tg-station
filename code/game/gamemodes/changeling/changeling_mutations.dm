@@ -5,7 +5,7 @@
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "arm_blade"
 	item_state = "arm_blade"
-	flags = ABSTRACT
+	flags = ABSTRACT | NODROP
 	w_class = 5.0
 	force = 25
 	throwforce = 0 //Just to be on the safe side
@@ -14,13 +14,16 @@
 
 /obj/item/weapon/melee/arm_blade/New()
 	..()
-	loc.visible_message("<span class='warning'>A grotesque blade forms around [name]\'s arm!</span>", "<span class='warning'>Our arm twists and mutates, transforming it into a deadly blade.</span>", "<span class='warning'>You hear organic matter ripping and tearing!</span>")
+	if(ismob(loc))
+		loc.visible_message("<span class='warning'>A grotesque blade forms around [loc.name]\'s arm!</span>", "<span class='warning'>Our arm twists and mutates, transforming it into a deadly blade.</span>", "<span class='warning'>You hear organic matter ripping and tearing!</span>")
 
 /obj/item/weapon/melee/arm_blade/dropped(mob/user)
 	visible_message("<span class='warning'>With a sickening crunch, [user] reforms his blade into an arm!</span>", "<span class='notice'>We assimilate our blade into our body</span>", "<span class='warning>You hear organic matter ripping and tearing!</span>")
 	del src
 
 /obj/item/weapon/melee/arm_blade/afterattack(atom/target, mob/user, proximity)
+	if(!proximity)
+		return
 	if(istype(target, /obj/structure/table))
 		var/obj/structure/table/T = target
 		T.table_destroy(1, user)
