@@ -18,7 +18,6 @@
 /mob/living/proc/update_abilities() //All abilities have to be aggregated into the mob's abilities. Once that's done, this proc handles all that remains.
 	if(!hud_used || !client)
 		return
-	//Necessary to clear out inactive abilities? Can they be gone from the list but not from the client? Will that have to be done by the ability-givers?
 	for (var/obj/screen/ability/A in client.screen)
 		A.screen_loc = null
 		client.screen -= A
@@ -32,12 +31,11 @@
 /mob/living/proc/add_abilities(var/list/A)
 	if (!A)
 		return
-	abilities |= A
+	abilities += A
 	update_abilities()
 
 /mob/living/proc/remove_abilities(var/list/A)
 	if (!A)
 		return
-	var/list/B = abilities & A
-	abilities ^= B
+	abilities -= A
 	update_abilities()

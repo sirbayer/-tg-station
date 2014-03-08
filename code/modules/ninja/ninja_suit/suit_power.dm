@@ -118,30 +118,28 @@
 		return 0
 
 	affecting = U
-	canremove = 0
 	slowdown = 0
+	flags |= NODROP
 	n_hood = newhood
-	n_hood.canremove = 0
+	n_hood.flags |= NODROP
 	n_shoes = newfeet
-	n_shoes.canremove = 0
-	n_shoes.slowdown = -1
+	n_shoes.flags |= NODROP
 	n_gloves = newgloves
-	n_gloves.canremove = 0
+	n_gloves.flags |= NODROP
 
 	return 1
 
 //This proc allows the suit to be taken off.
 /obj/item/clothing/suit/space/space_ninja/proc/unlock_suit()
 	affecting = null
-	canremove = 1
+	flags &= ~NODROP
 	slowdown = 1
 	if(n_hood)//Should be attached, might not be attached.
-		n_hood.canremove = 1
+		n_hood.flags &= ~NODROP
 	if(n_shoes)
-		n_shoes.canremove = 1
-		n_shoes.slowdown = 0
+		n_shoes.flags &= ~NODROP
 	if(n_gloves)
-		n_gloves.canremove = 1
+		n_gloves.flags &= ~NODROP
 		n_gloves.candrain = 0
 		n_gloves.draining = 0
 
