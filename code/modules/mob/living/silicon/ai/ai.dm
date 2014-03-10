@@ -1,6 +1,5 @@
 var/list/ai_list = list()
 
-//Not sure why this is necessary...
 /proc/AutoUpdateAI(obj/subject)
 	var/is_in_use = 0
 	if (subject!=null)
@@ -11,46 +10,37 @@ var/list/ai_list = list()
 				subject.attack_ai(M)
 	return is_in_use
 
-
 /mob/living/silicon/ai
 	name = "AI"
-	icon = 'icons/mob/AI.dmi'//
+	icon = 'icons/mob/AI.dmi'
 	icon_state = "ai"
-	anchored = 1 // -- TLE
+	anchored = 1
 	density = 1
 	status_flags = CANSTUN|CANPARALYSE|CANPUSH
 	var/list/network = list("SS13")
 	var/obj/machinery/camera/current = null
 	var/list/connected_robots = list()
 	var/aiRestorePowerRoutine = 0
-	//var/list/laws = list()
-	var/alarms = list("Motion"=list(), "Fire"=list(), "Atmosphere"=list(), "Power"=list(), "Camera"=list())
-	var/viewalerts = 0
 	var/icon/holo_icon//Default is assigned when AI is created.
 	var/obj/item/device/pda/ai/aiPDA = null
 	var/obj/item/device/multitool/aiMulti = null
 	var/obj/item/device/camera/ai_camera/aicamera = null
+	var/last_announcement = "" // For AI VOX, if enabled
+	var/last_paper_seen = null
+	var/camera_light_on = 0	//Defines if the AI toggled the light on the camera it's looking through.
+	var/datum/trackable/track = null
 
 	//MALFUNCTION
 	var/datum/module_picker/malf_picker
 	var/processing_time = 100
 	var/list/datum/AI_Module/current_modules = list()
 	var/fire_res_on_core = 0
-
 	var/control_disabled = 0 // Set to 1 to stop AI from interacting via Click() -- TLE
 	var/malfhacking = 0 // More or less a copy of the above var, so that malf AIs can hack and still get new cyborgs -- NeoFite
-
 	var/obj/machinery/power/apc/malfhack = null
 	var/explosive = 0 //does the AI explode when it dies?
-
 	var/mob/living/silicon/ai/parent = null
-
-	var/camera_light_on = 0	//Defines if the AI toggled the light on the camera it's looking through.
-	var/datum/trackable/track = null
-
-	var/last_paper_seen = null
 	var/can_shunt = 1
-	var/last_announcement = "" // For AI VOX, if enabled
 
 /mob/living/silicon/ai/New(loc, var/datum/ai_laws/L, var/obj/item/device/mmi/B, var/safety = 0)
 	var/list/possibleNames = ai_names
@@ -131,7 +121,6 @@ var/list/ai_list = list()
 	if(stat || aiRestorePowerRoutine)
 		return
 
-		//if(icon_state == initial(icon_state))
 	var/icontype = input("Please, select a display!", "AI", null/*, null*/) in list("Clown", "Monochrome", "Blue", "Inverted", "Firewall", "Green", "Red", "Static", "Red October")
 	if(icontype == "Clown")
 		icon_state = "ai-clown2"
@@ -151,9 +140,6 @@ var/list/ai_list = list()
 		icon_state = "ai-static"
 	else if(icontype == "Red October")
 		icon_state = "ai-redoctober"
-	//else
-			//usr <<"You can only change your display once!"
-			//return
 
 /mob/living/silicon/ai/Stat()
 	..()
@@ -254,14 +240,14 @@ var/list/ai_list = list()
 	return
 
 /mob/living/silicon/ai/verb/toggle_anchor()
-        set category = "AI Commands"
-        set name = "Toggle Floor Bolts"
-        if(!isturf(loc)) // if their location isn't a turf
-                return // stop
-        anchored = !anchored // Toggles the anchor
+	set category = "AI Commands"
+	set name = "Toggle Floor Bolts"
+	if(!isturf(loc)) // if their location isn't a turf
+		return // stop
+	anchored = !anchored // Toggles the anchor
 
-        src << "[anchored ? "<b>You are now anchored.</b>" : "<b>You are now unanchored.</b>"]"
-        // the message in the [] will change depending whether or not the AI is anchored
+	src << "[anchored ? "<b>You are now anchored.</b>" : "<b>You are now unanchored.</b>"]"
+	// the message in the [] will change depending whether or not the AI is anchored
 
 /mob/living/silicon/ai/update_canmove() //If the AI dies, mobs won't go through it anymore
 	return 0
@@ -464,61 +450,55 @@ var/list/ai_list = list()
 	// ok, we're alive, camera is good and in our network...
 	eyeobj.setLoc(get_turf(C))
 	//machine = src
-
 	return 1
 
-/mob/living/silicon/ai/triggerAlarm(var/class, area/A, var/O, var/alarmsource)
+
+/mob/living/silicon/ai/triggerAlarm(var/class, area/alm_area, var/alm_type, var/alm_source)
 	if (stat == 2)
-		return 1
+		return 0
+
 	var/list/L = alarms[class]
 	for (var/I in L)
-		if (I == A.name)
+		if (I == alm_area.name)
 			var/list/alarm = L[I]
 			var/list/sources = alarm[3]
-			if (!(alarmsource in sources))
-				sources += alarmsource
+			if (!(alm_source in sources))
+				sources += alm_source
 			return 1
+
 	var/obj/machinery/camera/C = null
 	var/list/CL = null
-	if (O && istype(O, /list))
-		CL = O
+	if (alm_type && istype(alm_type, /list))
+		CL = alm_type
 		if (CL.len == 1)
 			C = CL[1]
-	else if (O && istype(O, /obj/machinery/camera))
-		C = O
-	L[A.name] = list(A, (C) ? C : O, list(alarmsource))
-	if (O)
+	else if (alm_type && istype(alm_type, /obj/machinery/camera))
+		C = alm_type
+	L[alm_area.name] = list(alm_area, (C) ? C : alm_type, list(alm_source))
+	if(alm_type)
 		if (C && C.can_use())
-			queueAlarm("--- [class] alarm detected in [A.name]! (<A HREF=?src=\ref[src];switchcamera=\ref[C]>[C.c_tag]</A>)", class)
+			queueAlarm("--- [class] alarm detected in [alm_area.name]! (<A HREF=?src=\ref[src];switchcamera=\ref[C]>[C.c_tag]</A>)", class)
 		else if (CL && CL.len)
 			var/foo = 0
 			var/dat2 = ""
 			for (var/obj/machinery/camera/I in CL)
-				dat2 += text("[]<A HREF=?src=\ref[];switchcamera=\ref[]>[]</A>", (!foo) ? "" : " | ", src, I, I.c_tag)	//I'm not fixing this shit...
+				dat2 += text("[]<A HREF=?src=\ref[];switchcamera=\ref[]>[]</A>", (!foo) ? "" : " | ", src, I, I.c_tag)	//I'm not fixing this shit...//fuck you
 				foo = 1
-			queueAlarm(text ("--- [] alarm detected in []! ([])", class, A.name, dat2), class)
+			queueAlarm(text ("--- [] alarm detected in []! ([])", class, alm_area.name, dat2), class)
 		else
-			queueAlarm(text("--- [] alarm detected in []! (No Camera)", class, A.name), class)
+			queueAlarm(text("--- [] alarm detected in []! (No Camera)", class, alm_area.name), class)
 	else
-		queueAlarm(text("--- [] alarm detected in []! (No Camera)", class, A.name), class)
+		queueAlarm(text("--- [] alarm detected in []! (No Camera)", class, alm_area.name), class)
 	if (viewalerts) ai_alerts()
 	return 1
 
-/mob/living/silicon/ai/cancelAlarm(var/class, area/A as area, obj/origin)
-	var/list/L = alarms[class]
-	var/cleared = 0
-	for (var/I in L)
-		if (I == A.name)
-			var/list/alarm = L[I]
-			var/list/srcs  = alarm[3]
-			if (origin in srcs)
-				srcs -= origin
-			if (srcs.len == 0)
-				cleared = 1
-				L -= I
-	if (cleared)
-		queueAlarm(text("--- [] alarm in [] has been cleared.", class, A.name), class, 0)
-		if (viewalerts) ai_alerts()
+
+
+/mob/living/silicon/ai/cancelAlarm()
+	var/cleared = ..()
+	if(cleared)
+		if(viewalerts)
+			ai_alerts()
 	return !cleared
 
 /mob/living/silicon/ai/cancel_camera()

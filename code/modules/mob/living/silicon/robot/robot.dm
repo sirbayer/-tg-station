@@ -39,9 +39,6 @@
 	var/locked = 1
 	var/list/req_access = list(access_robotics)
 	var/ident = 0
-	//var/list/laws = list()
-	var/alarms = list("Motion"=list(), "Fire"=list(), "Atmosphere"=list(), "Power"=list(), "Camera"=list())
-	var/viewalerts = 0
 	var/modtype = "robot"
 	var/lower_mod = 0
 	var/jetpack = 0
@@ -123,6 +120,7 @@
 		mind.transfer_to(mmi.brainmob)
 		mmi = null
 	..()
+
 
 /mob/living/silicon/robot/proc/pick_module()
 	if(module)
@@ -216,6 +214,7 @@
 	transform_animation(animation_length)
 	updateicon()
 
+
 /mob/living/silicon/robot/proc/transform_animation(animation_length)
 	if(!animation_length)
 		return
@@ -226,6 +225,7 @@
 	sleep(animation_length+1)
 	notransform = 0
 	icon = 'icons/mob/robots.dmi'
+
 
 /mob/living/silicon/robot/proc/updatename(var/prefix as text)
 
@@ -244,6 +244,7 @@
 	set category = "Robot Commands"
 	set name = "Show Alerts"
 	robot_alerts()
+
 
 /mob/living/silicon/robot/proc/robot_alerts()
 	var/dat = "<HEAD><TITLE>Current Station Alerts</TITLE><META HTTP-EQUIV='Refresh' CONTENT='10'></HEAD><BODY>\n"
@@ -268,6 +269,7 @@
 	viewalerts = 1
 	src << browse(dat, "window=robotalerts&can_close=0")
 
+
 /mob/living/silicon/robot/blob_act()
 	if (stat != 2)
 		adjustBruteLoss(60)
@@ -277,6 +279,7 @@
 		gib()
 		return 1
 	return 0
+
 
 /mob/living/silicon/robot/Stat()
 	..()
@@ -308,13 +311,13 @@
 				stat("Internal Atmosphere Info", internal.name)
 				stat("Tank Pressure", internal.air_contents.return_pressure())
 
+
 /mob/living/silicon/robot/restrained()
 	return 0
 
 
 /mob/living/silicon/robot/ex_act(severity)
 	..()
-
 	switch(severity)
 		if(1.0)
 			gib()
@@ -326,14 +329,12 @@
 		if(3.0)
 			if (stat != 2)
 				adjustBruteLoss(30)
-
 	return
 
 
 /mob/living/silicon/robot/meteorhit(obj/O as obj)
 	for(var/mob/M in viewers(src, null))
 		M.show_message(text("\red [src] has been hit by [O]"), 1)
-		//Foreach goto(19)
 	if (health > 0)
 		adjustBruteLoss(30)
 		if ((O.icon_state == "flaming"))
@@ -348,49 +349,10 @@
 	if(prob(75) && Proj.damage > 0) spark_system.start()
 	return 2
 
-/mob/living/silicon/robot/triggerAlarm(var/class, area/A, var/O, var/alarmsource)
-	if (stat == 2)
-		return 1
-	var/list/L = alarms[class]
-	for (var/I in L)
-		if (I == A.name)
-			var/list/alarm = L[I]
-			var/list/sources = alarm[3]
-			if (!(alarmsource in sources))
-				sources += alarmsource
-			return 1
-	var/obj/machinery/camera/C = null
-	var/list/CL = null
-	if (O && istype(O, /list))
-		CL = O
-		if (CL.len == 1)
-			C = CL[1]
-	else if (O && istype(O, /obj/machinery/camera))
-		C = O
-	L[A.name] = list(A, (C) ? C : O, list(alarmsource))
-	queueAlarm(text("--- [class] alarm detected in [A.name]!"), class)
-//	if (viewalerts) robot_alerts()
+/mob/living/silicon/robot/triggerAlarm(var/class, area/alm_area, var/alm_type, var/alm_source)
+	if(!..()) return 0
+	queueAlarm(text("--- [class] alarm detected in [alm_area.name]!"), class)
 	return 1
-
-
-/mob/living/silicon/robot/cancelAlarm(var/class, area/A as area, obj/origin)
-	var/list/L = alarms[class]
-	var/cleared = 0
-	for (var/I in L)
-		if (I == A.name)
-			var/list/alarm = L[I]
-			var/list/srcs  = alarm[3]
-			if (origin in srcs)
-				srcs -= origin
-			if (srcs.len == 0)
-				cleared = 1
-				L -= I
-	if (cleared)
-		queueAlarm(text("--- [class] alarm in [A.name] has been cleared."), class, 0)
-//		if (viewalerts) robot_alerts()
-	return !cleared
-
-
 /mob/living/silicon/robot/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	if (istype(W, /obj/item/weapon/handcuffs)) // fuck i don't even know why isrobot() in handcuff code isn't working so this will have to do
 		return

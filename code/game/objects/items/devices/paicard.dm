@@ -29,8 +29,8 @@
 		dat += "<a href='byond://?src=\ref[src];setdna=1'>Imprint Master DNA</a><br>"
 	if(pai)
 		dat += "Installed Personality: [pai.name]<br>"
-		dat += "Prime directive: <br>[pai.pai_law0]<br>"
-		dat += "Additional directives: <br>[pai.pai_laws]<br>"
+		dat += "Prime directive: <br>[pai.laws.zeroth]<br>"
+		dat += "Additional directives: <br>[pai.laws.supplied]<br>"
 		dat += "<a href='byond://?src=\ref[src];setlaws=1'>Configure Directives</a><br>"
 		dat += "<br>"
 		dat += "<h3>Device Settings</h3><br>"
@@ -55,7 +55,6 @@
 	return
 
 /obj/item/device/paicard/Topic(href, href_list)
-
 	if(!usr || usr.stat)
 		return
 
@@ -68,20 +67,20 @@
 			if(pai.master_dna)
 				return
 			if(!istype(usr, /mob/living/carbon))
-				usr << "<font color=blue>You don't have any DNA, or your DNA is incompatible with this device.</font>"
+				usr << "<span class ='notice'>You don't have any DNA, or your DNA is incompatible with this device.</span>"
 			else
 				var/mob/living/carbon/M = usr
 				pai.master = M.real_name
 				pai.master_dna = M.dna.unique_enzymes
-				pai << "<font color = red><h3>You have been bound to a new master.</h3></font>"
+				pai << "<span class ='info'>You have been bound to a new master.</span>"
 		if(href_list["wipe"])
 			var/confirm = input("Are you CERTAIN you wish to delete the current personality? This action cannot be undone.", "Personality Wipe") in list("Yes", "No")
 			if(confirm == "Yes")
 				if(pai)
-					pai << "<font color = #ff0000><h2>You feel yourself slipping away from reality.</h2></font>"
-					pai << "<font color = #ff4d4d><h3>Byte by byte you lose your sense of self.</h3></font>"
-					pai << "<font color = #ff8787><h4>Your mental faculties leave you.</h4></font>"
-					pai << "<font color = #ffc4c4><h5>oblivion... </h5></font>"
+					pai << "<span class ='warning'>You feel yourself slipping away from reality.</span>"
+					pai << "<span class ='danger'>Byte by byte you lose your sense of self.</span>"
+					pai << "<span class ='userdanger'>Your mental faculties leave you.</span>"
+					pai << "<span class ='rose'>oblivion...</span>"
 					pai.death(0)
 				removePersonality()
 		if(href_list["wires"])
@@ -89,17 +88,14 @@
 			if(radio)
 				radio.wires.CutWireIndex(t1)
 		if(href_list["setlaws"])
-			var/newlaws = copytext(sanitize(input("Enter any additional directives you would like your pAI personality to follow. Note that these directives will not override the personality's allegiance to its imprinted master. Conflicting directives will be ignored.", "pAI Directive Configuration", pai.pai_laws) as message),1,MAX_MESSAGE_LEN)
+			var/newlaws = copytext(sanitize(input("Enter any additional directives you would like your pAI personality to follow. Note that these directives will not override the personality's allegiance to its imprinted master. Conflicting directives will be ignored.", "pAI Directive Configuration", pai.laws.supplied) as message),1,MAX_MESSAGE_LEN)
 			if(newlaws && pai)
-				pai.pai_laws = newlaws
+				pai.laws.supplied = newlaws
 				pai << "Your supplemental directives have been updated. Your new directives are:"
-				pai << "Prime Directive : <br>[pai.pai_law0]"
-				pai << "Supplemental Directives: <br>[pai.pai_laws]"
+				pai << "Prime Directive : <br>[pai.laws.zeroth]"
+				pai << "Supplemental Directives: <br>[pai.laws.supplied]"
 	attack_self(usr)
 
-// 		WIRE_SIGNAL = 1
-//		WIRE_RECEIVE = 2
-//		WIRE_TRANSMIT = 4
 
 /obj/item/device/paicard/proc/setPersonality(mob/living/silicon/pai/personality)
 	src.pai = personality
@@ -127,7 +123,7 @@
 /obj/item/device/paicard/proc/alertUpdate()
 	var/turf/T = get_turf(src.loc)
 	for (var/mob/M in viewers(T))
-		M.show_message("\blue [src] flashes a message across its screen, \"Additional personalities available for download.\"", 3, "\blue [src] bleeps electronically.", 2)
+		M.show_message("<span class ='info>[src] flashes a message across its screen, \"Additional personalities available for download.\"</span>", 3, "<span class ='info'> [src] bleeps electronically.</span>", 2)
 
 /obj/item/device/paicard/emp_act(severity)
 	if(pai)

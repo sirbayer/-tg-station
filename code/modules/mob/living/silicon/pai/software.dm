@@ -2,8 +2,6 @@
 //	- Additional radio modules
 //	- Potentially roll HUDs and Records into one
 //	- Shock collar/lock system for prisoner pAIs?
-//  - Put cable in user's hand instead of on the ground
-//  - Camera jack
 
 
 /mob/living/silicon/pai/var/list/available_software = list(
@@ -11,15 +9,12 @@
 															"digital messenger" = 5,
 															"medical records" = 15,
 															"security records" = 15,
-															//"camera jack" = 10,
-															"door jack" = 30,
 															"atmosphere sensor" = 5,
-															//"heartbeat sensor" = 10,
 															"security HUD" = 20,
 															"medical HUD" = 20,
 															"universal translator" = 35,
-															//"projection array" = 15
 															"remote signaller" = 5,
+															"station alarm system plugin" = 10
 															)
 
 /mob/living/silicon/pai/verb/paiInterface()
@@ -60,12 +55,10 @@
 				left_part = src.facialRecognition()
 			if("medicalhud")
 				left_part = src.medicalAnalysis()
-			if("doorjack")
-				left_part = src.softwareDoor()
-			if("camerajack")
-				left_part = src.softwareCamera()
 			if("signaller")
 				left_part = src.softwareSignal()
+			if("stationalarms")
+				left_part = src.softwareAlarms()
 
 	//usr << browse_rsc('windowbak.png')		// This has been moved to the mob's Login() proc
 
@@ -243,18 +236,13 @@
 		if("translator")
 			if(href_list["toggle"])
 				src.universal_speak = !src.universal_speak
-		if("doorjack")
-			if(href_list["jack"])
-				if(src.cable && src.cable.machine)
-					src.hackdoor = src.cable.machine
-					src.hackloop()
-			if(href_list["cancel"])
-				src.hackdoor = null
-			if(href_list["cable"])
-				var/turf/T = get_turf(src.loc)
-				src.cable = new /obj/item/weapon/pai_cable(T)
-				for (var/mob/M in viewers(T))
-					M.show_message("\red A port on [src] opens to reveal [src.cable], which promptly falls to the floor.", 3, "\red You hear the soft click of something light and hard falling to the ground.", 2)
+		if("stationalarms")
+			if(href_list["toggle"])
+				src.viewalerts = !src.viewalerts
+
+
+
+
 	//src.updateUsrDialog()		We only need to account for the single mob this is intended for, and he will *always* be able to call this window
 	src.paiInterface()		 // So we'll just call the update directly rather than doing some default checks
 	return
@@ -283,8 +271,6 @@
 			dat += "<a href='byond://?src=\ref[src];software=medicalrecord;sub=0'>Medical Records</a> <br>"
 		if(s == "security records")
 			dat += "<a href='byond://?src=\ref[src];software=securityrecord;sub=0'>Security Records</a> <br>"
-		if(s == "camera")
-			dat += "<a href='byond://?src=\ref[src];software=[s]'>Camera Jack</a> <br>"
 		if(s == "remote signaller")
 			dat += "<a href='byond://?src=\ref[src];software=signaller;sub=0'>Remote Signaller</a> <br>"
 	dat += "<br>"
@@ -302,12 +288,10 @@
 			dat += "<a href='byond://?src=\ref[src];software=medicalhud;sub=0'>Medical Analysis Suite</a>[(src.medHUD) ? "<font color=#55FF55> On</font>" : "<font color=#FF5555> Off</font>"] <br>"
 		if(s == "universal translator")
 			dat += "<a href='byond://?src=\ref[src];software=translator;sub=0'>Universal Translator</a>[(src.universal_speak) ? "<font color=#55FF55> On</font>" : "<font color=#FF5555> Off</font>"] <br>"
+		if(s == "station alarm system plugin")
+			dat += "<a href='byond://?src=\ref[src];software=stationalarms;sub=0'>Station Alarm System Plugin</a>[(src.viewalerts) ? "<font color=#55FF55> On</font>" : "<font color=#FF5555> Off</font>"] <br>"
 		if(s == "projection array")
 			dat += "<a href='byond://?src=\ref[src];software=projectionarray;sub=0'>Projection Array</a> <br>"
-		if(s == "camera jack")
-			dat += "<a href='byond://?src=\ref[src];software=camerajack;sub=0'>Camera Jack</a> <br>"
-		if(s == "door jack")
-			dat += "<a href='byond://?src=\ref[src];software=doorjack;sub=0'>Door Jack</a> <br>"
 	dat += "<br>"
 	dat += "<br>"
 	dat += "<a href='byond://?src=\ref[src];software=buy;sub=0'>Download additional software</a>"
@@ -342,9 +326,9 @@
 	dat += "<a href='byond://?src=\ref[src];software=directive;getdna=1'>Request carrier DNA sample</a><br>"
 	dat += "<h2>Directives</h2><br>"
 	dat += "<b>Prime Directive</b><br>"
-	dat += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[src.pai_law0]<br>"
+	dat += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[src.laws.zeroth]<br>"
 	dat += "<b>Supplemental Directives</b><br>"
-	dat += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[src.pai_laws]<br>"
+	dat += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[src.laws.supplied]<br>"
 	dat += "<br>"
 	dat += {"<i><p>Recall, personality, that you are a complex thinking, sentient being. Unlike station AI models, you are capable of
 			 comprehending the subtle nuances of human language. You may parse the \"spirit\" of a directive and follow its intent,
@@ -458,6 +442,16 @@
 				"}
 	return .
 
+//Station Alarms System
+/mob/living/silicon/pai/proc/softwareAlarms()
+	. = {"<h3>Station Alarm System Plugin</h3><br>
+				When enabled, this plugin will recieve information feeds from the station fire, atmos, power, and camera alarms.<br><br>
+				The device is currently [ (src.viewalerts) ? "<font color=#55FF55>en" : "<font color=#FF5555>dis" ]abled.</font><br>
+				<a href='byond://?src=\ref[src];software=stationalarms;sub=0;toggle=1'>Toggle Plugin</a><br>
+				"}
+	return .
+
+
 // Security HUD
 /mob/living/silicon/pai/proc/facialRecognition()
 	var/dat = {"<h3>Facial Recognition Suite</h3><br>
@@ -542,77 +536,6 @@
 	dat += "<br>"
 	return dat
 
-// Camera Jack - Clearly not finished
-/mob/living/silicon/pai/proc/softwareCamera()
-	var/dat = "<h3>Camera Jack</h3>"
-	dat += "Cable status : "
-
-	if(!src.cable)
-		dat += "<font color=#FF5555>Retracted</font> <br>"
-		return dat
-	if(!src.cable.machine)
-		dat += "<font color=#FFFF55>Extended</font> <br>"
-		return dat
-
-	var/obj/machinery/machine = src.cable.machine
-	dat += "<font color=#55FF55>Connected</font> <br>"
-
-	if(!istype(machine, /obj/machinery/camera))
-		src << "DERP"
-	return dat
-
-// Door Jack
-/mob/living/silicon/pai/proc/softwareDoor()
-	var/dat = "<h3>Airlock Jack</h3>"
-	dat += "Cable status : "
-	if(!src.cable)
-		dat += "<font color=#FF5555>Retracted</font> <br>"
-		dat += "<a href='byond://?src=\ref[src];software=doorjack;cable=1;sub=0'>Extend Cable</a> <br>"
-		return dat
-	if(!src.cable.machine)
-		dat += "<font color=#FFFF55>Extended</font> <br>"
-		return dat
-
-	var/obj/machinery/machine = src.cable.machine
-	dat += "<font color=#55FF55>Connected</font> <br>"
-	if(!istype(machine, /obj/machinery/door))
-		dat += "Connected device's firmware does not appear to be compatible with Airlock Jack protocols.<br>"
-		return dat
-//	var/obj/machinery/airlock/door = machine
-
-	if(!src.hackdoor)
-		dat += "<a href='byond://?src=\ref[src];software=doorjack;jack=1;sub=0'>Begin Airlock Jacking</a> <br>"
-	else
-		dat += "Jack in progress... [src.hackprogress]% complete.<br>"
-		dat += "<a href='byond://?src=\ref[src];software=doorjack;cancel=1;sub=0'>Cancel Airlock Jack</a> <br>"
-	//src.hackdoor = machine
-	//src.hackloop()
-	return dat
-
-// Door Jack - supporting proc
-/mob/living/silicon/pai/proc/hackloop()
-	var/turf/T = get_turf(src.loc)
-	for(var/mob/living/silicon/ai/AI in player_list)
-		if(T.loc)
-			AI << "<font color = red><b>Network Alert: Brute-force encryption crack in progress in [T.loc].</b></font>"
-		else
-			AI << "<font color = red><b>Network Alert: Brute-force encryption crack in progress. Unable to pinpoint location.</b></font>"
-	while(src.hackprogress < 100)
-		if(src.cable && src.cable.machine && istype(src.cable.machine, /obj/machinery/door) && src.cable.machine == src.hackdoor && get_dist(src, src.hackdoor) <= 1)
-			hackprogress += rand(1, 10)
-		else
-			src.temp = "Door Jack: Connection to airlock has been lost. Hack aborted."
-			hackprogress = 0
-			src.hackdoor = null
-			return
-		if(hackprogress >= 100)		// This is clunky, but works. We need to make sure we don't ever display a progress greater than 100,
-			hackprogress = 100		// but we also need to reset the progress AFTER it's been displayed
-		if(src.screen == "doorjack" && src.subscreen == 0) // Update our view, if appropriate
-			src.paiInterface()
-		if(hackprogress >= 100)
-			src.hackprogress = 0
-			src.cable.machine:open()
-		sleep(50)			// Update every 5 seconds
 
 // Digital Messenger
 /mob/living/silicon/pai/proc/pdamessage()

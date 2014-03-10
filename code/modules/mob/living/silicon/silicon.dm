@@ -8,17 +8,45 @@
 	var/list/alarms_to_clear = list()
 
 
+	var/viewalerts = 0
+	var/alarms = list("Motion"=list(), "Fire"=list(), "Atmosphere"=list(), "Power"=list(), "Camera"=list())
 	var/list/alarm_types_show = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 	var/list/alarm_types_clear = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 
 	var/lawcheck[1]
 	var/ioncheck[1]
 
-/mob/living/silicon/proc/cancelAlarm()
-	return
+/mob/living/silicon/proc/cancelAlarm(var/class, area/A as area, obj/origin)
+	var/list/L = alarms[class]
+	var/cleared = 0
+	for (var/I in L)
+		if (I == A.name)
+			var/list/alarm = L[I]
+			var/list/srcs  = alarm[3]
+			if (origin in srcs)
+				srcs -= origin
+			if (srcs.len == 0)
+				cleared = 1
+				L -= I
+	if (cleared)
+		queueAlarm(text("--- [] alarm in [] has been cleared.", class, A.name), class, 0)
+	return !cleared
 
-/mob/living/silicon/proc/triggerAlarm()
-	return
+
+/mob/living/silicon/proc/triggerAlarm(var/class, area/alm_area, var/alm_type, var/alm_source)
+	if (stat == 2)
+		return 0
+
+	var/list/L = alarms[class]
+	for (var/I in L)
+		if (I == alm_area.name)
+			var/list/alarm = L[I]
+			var/list/sources = alarm[3]
+			if (!(alm_source in sources))
+				sources += alm_source
+			return 1
+	return 1
+
 
 /mob/living/silicon/proc/queueAlarm(var/message, var/type, var/incoming = 1)
 	var/in_cooldown = (alarms_to_show.len > 0 || alarms_to_clear.len > 0)
@@ -102,8 +130,8 @@
 			src.take_organ_damage(10)
 			Stun(3)
 	flick("noise", src:flash)
-	src << "\red <B>*BZZZT*</B>"
-	src << "\red Warning: Electromagnetic pulse detected."
+	src << "<span class='userdanger'>*BZZZT*</span>"
+	src << "<span class='userdanger'>Warning: Electromagnetic pulse detected.</span>"
 	..()
 
 /mob/living/silicon/apply_damage(var/damage = 0,var/damagetype = BRUTE, var/def_zone = null, var/blocked = 0)
@@ -275,26 +303,26 @@
 	usr << browse(list, "window=laws")
 
 /mob/living/silicon/Bump(atom/movable/AM as mob|obj, yes)  //Allows the AI to bump into mobs if it's itself pushed
-        if ((!( yes ) || now_pushing))
-                return
-        now_pushing = 1
-        if(ismob(AM))
-                var/mob/tmob = AM
-                if(!(tmob.status_flags & CANPUSH))
-                        now_pushing = 0
-                        return
-        now_pushing = 0
-        ..()
-        if (!istype(AM, /atom/movable))
-                return
-        if (!now_pushing)
-                now_pushing = 1
-                if (!AM.anchored)
-                        var/t = get_dir(src, AM)
-                        if (istype(AM, /obj/structure/window))
-                                if(AM:ini_dir == NORTHWEST || AM:ini_dir == NORTHEAST || AM:ini_dir == SOUTHWEST || AM:ini_dir == SOUTHEAST)
-                                        for(var/obj/structure/window/win in get_step(AM,t))
-                                                now_pushing = 0
-                                                return
-                        step(AM, t)
-                now_pushing = null
+	if ((!( yes ) || now_pushing))
+		return
+	now_pushing = 1
+	if(ismob(AM))
+		var/mob/tmob = AM
+		if(!(tmob.status_flags & CANPUSH))
+			now_pushing = 0
+			return
+	now_pushing = 0
+	..()
+	if (!istype(AM, /atom/movable))
+		return
+	if (!now_pushing)
+		now_pushing = 1
+		if (!AM.anchored)
+			var/t = get_dir(src, AM)
+			if (istype(AM, /obj/structure/window))
+				if(AM:ini_dir == NORTHWEST || AM:ini_dir == NORTHEAST || AM:ini_dir == SOUTHWEST || AM:ini_dir == SOUTHEAST)
+					for(var/obj/structure/window/win in get_step(AM,t))
+						now_pushing = 0
+						return
+					step(AM, t)
+		now_pushing = null

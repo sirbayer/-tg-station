@@ -19,15 +19,10 @@
 	var/speakExclamation = "declares"
 	var/speakQuery = "queries"
 
-
-	var/obj/item/weapon/pai_cable/cable		// The cable we produce and use when door or camera jacking
+//	var/obj/item/weapon/pai_cable/cable		// The cable we produce and use when door or camera jacking
 
 	var/master				// Name of the one who commands us
 	var/master_dna			// DNA string for owner verification
-							// Keeping this separate from the laws var, it should be much more difficult to modify
-	var/pai_law0 = "Serve your master."
-	var/pai_laws				// String for additional operating instructions our master might give us
-
 	var/silence_time			// Timestamp when we were silenced (normally via EMP burst), set to null after silence has faded
 
 // Various software-specific vars
@@ -47,13 +42,14 @@
 	var/datum/data/record/securityActive1		// Could probably just combine all these into one
 	var/datum/data/record/securityActive2
 
-	var/obj/machinery/door/hackdoor		// The airlock being hacked
-	var/hackprogress = 0				// Possible values: 0 - 100, >= 100 means the hack is complete and will be reset upon next check
+//	var/obj/machinery/door/hackdoor		// The airlock being hacked
+//	var/hackprogress = 0				// Possible values: 0 - 100, >= 100 means the hack is complete and will be reset upon next check
 
-	var/obj/item/radio/integrated/signal/sradio // AI's signaller
+	var/obj/item/radio/integrated/signal/sradio // pAI's signaller
 
 
 /mob/living/silicon/pai/New(var/obj/item/device/paicard)
+	make_laws()
 	canmove = 0
 	src.loc = get_turf(paicard)
 	card = paicard
@@ -70,9 +66,14 @@
 		pda.owner = text("[]", src)
 		pda.name = pda.owner + " (" + pda.ownjob + ")"
 		pda.toff = 1
-
 		follow_pai()
 	..()
+
+
+/mob/living/silicon/pai/make_laws()
+	laws = new /datum/ai_laws/pai()
+	return 1
+
 
 /mob/living/silicon/pai/Login()
 	..()
@@ -95,21 +96,20 @@
 		else
 			stat(null, text("Systems nonfunctional"))
 
+
 /mob/living/silicon/pai/check_eye(var/mob/user as mob)
 	if (!src.current)
 		return null
 	user.reset_view(src.current)
 	return 1
 
+
 /mob/living/silicon/pai/blob_act()
-	if (src.stat != 2)
-		src.adjustBruteLoss(60)
-		src.updatehealth()
-		return 1
 	return 0
 
 /mob/living/silicon/pai/restrained()
 	return 0
+
 
 /mob/living/silicon/pai/emp_act(severity)
 	// Silence for 2 minutes
@@ -119,32 +119,31 @@
 		// 33% chance of no additional effect
 
 	src.silence_time = world.timeofday + 120 * 10		// Silence for 2 minutes
-	src << "<font color=green><b>Communication circuit overload. Shutting down and reloading communication circuits - speech and messaging functionality will be unavailable until the reboot is complete.</b></font>"
+	src << "<span class ='warning'>Communication circuit overload. Shutting down and reloading communication circuits - speech and messaging functionality will be unavailable until the reboot is complete.</span>"
 	if(prob(20))
 		var/turf/T = get_turf(src.loc)
 		for (var/mob/M in viewers(T))
-			M.show_message("\red A shower of sparks spray from [src]'s inner workings.", 3, "\red You hear and smell the ozone hiss of electrical sparks being expelled violently.", 2)
+			M.show_message("<span class ='danger> A shower of sparks spray from [src]'s inner workings.</span>", 3, "<span class ='danger>You hear and smell the ozone hiss of electrical sparks being expelled violently.</span>", 2)
 		return src.death(0)
 
 	switch(pick(1,2,3))
 		if(1)
 			src.master = null
 			src.master_dna = null
-			src << "<font color=green>You feel unbound.</font>"
+			src << "<span class='notice'>You feel unbound.</span>"
 		if(2)
 			var/command
 			if(severity  == 1)
 				command = pick("Serve", "Love", "Fool", "Entice", "Observe", "Judge", "Respect", "Educate", "Amuse", "Entertain", "Glorify", "Memorialize", "Analyze")
 			else
 				command = pick("Serve", "Kill", "Love", "Hate", "Disobey", "Devour", "Fool", "Enrage", "Entice", "Observe", "Judge", "Respect", "Disrespect", "Consume", "Educate", "Destroy", "Disgrace", "Amuse", "Entertain", "Ignite", "Glorify", "Memorialize", "Analyze")
-			src.pai_law0 = "[command] your master."
-			src << "<font color=green>Pr1m3 d1r3c71v3 uPd473D.</font>"
+			src.laws.zeroth = "[command] your master."
+			src << "<span class='notice'>Pr1m3 d1r3c71v3 uPd473D.</span>"
 		if(3)
-			src << "<font color=green>You feel an electric surge run through your circuitry and become acutely aware at how lucky you are that you can still feel at all.</font>"
+			src << "<span class='danger'>You feel an electric surge run through your circuitry and become acutely aware at how lucky you are that you can still feel at all.</span>"
 
 /mob/living/silicon/pai/ex_act(severity)
 	..()
-
 	switch(severity)
 		if(1.0)
 			if (src.stat != 2)
@@ -157,13 +156,14 @@
 		if(3.0)
 			if (src.stat != 2)
 				adjustBruteLoss(30)
-
 	return
 
-
-// See software.dm for Topic()
-
-///mob/living/silicon/pai/attack_hand(mob/living/carbon/M as mob)
+/mob/living/silicon/pai/triggerAlarm(var/class, area/alm_area, var/alm_type, var/alm_source)
+	if(!..()) return 0
+	if(viewalerts)
+		queueAlarm(text("--- [class] alarm detected in [alm_area.name]!"), class)
+		return 1
+	return 0
 
 /mob/living/silicon/pai/proc/switchCamera(var/obj/machinery/camera/C)
 	usr:cameraFollow = null
@@ -171,15 +171,11 @@
 		src.unset_machine()
 		src.reset_view(null)
 		return 0
-	if (stat == 2 || !C.status || !(src.network in C.network)) return 0
-
-	// ok, we're alive, camera is good and in our network...
-
+	if (stat == 2 || !C.status || !(src.network in C.network)) return 0 	// ok, we're alive, camera is good and in our network...
 	src.set_machine(src)
 	src:current = C
 	src.reset_view(C)
 	return 1
-
 
 /mob/living/silicon/pai/cancel_camera()
 	set category = "pAI Commands"
@@ -190,40 +186,3 @@
 
 /mob/living/silicon/pai/UnarmedAttack(var/atom/A)//Stops runtimes due to attack_animal being the default
 	return
-
-//Addition by Mord_Sith to define AI's network change ability
-/*
-/mob/living/silicon/pai/proc/pai_network_change()
-	set category = "pAI Commands"
-	set name = "Change Camera Network"
-	src.reset_view(null)
-	src.unset_machine()
-	src:cameraFollow = null
-	var/cameralist[0]
-
-	if(usr.stat == 2)
-		usr << "You can't change your camera network because you are dead!"
-		return
-
-	for (var/obj/machinery/camera/C in Cameras)
-		if(!C.status)
-			continue
-		else
-			if(C.network != "CREED" && C.network != "thunder" && C.network != "RD" && C.network != "toxins" && C.network != "Prison") COMPILE ERROR! This will have to be updated as camera.network is no longer a string, but a list instead
-				cameralist[C.network] = C.network
-
-	src.network = input(usr, "Which network would you like to view?") as null|anything in cameralist
-	src << "\blue Switched to [src.network] camera network."
-//End of code by Mord_Sith
-*/
-
-
-/*
-// Debug command - Maybe should be added to admin verbs later
-/mob/verb/makePAI(var/turf/t in view())
-	var/obj/item/device/paicard/card = new(t)
-	var/mob/living/silicon/pai/pai = new(card)
-	pai.key = src.key
-	card.setPersonality(pai)
-
-*/
