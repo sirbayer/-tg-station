@@ -81,6 +81,7 @@
 
 /obj/machinery/bot/cleanbot/interact(mob/user as mob)
 	var/dat
+	dat += hack(user)
 	dat += text({"
 <TT><B>Automatic Station Cleaner v1.0</B></TT><BR><BR>
 Status: []<BR>
@@ -109,7 +110,7 @@ text("<A href='?src=\ref[src];operation=oddbutton'>[src.oddbutton ? "Yes" : "No"
 	src.add_fingerprint(usr)
 	switch(href_list["operation"])
 		if("start")
-			if (src.on)
+			if (src.on && !src.emagged)
 				turn_off()
 			else
 				turn_on()
@@ -133,6 +134,20 @@ text("<A href='?src=\ref[src];operation=oddbutton'>[src.oddbutton ? "Yes" : "No"
 		if("oddbutton")
 			src.oddbutton = !src.oddbutton
 			usr << "<span class='notice'>You press the weird button.</span>"
+			src.updateUsrDialog()
+		if("hack")
+			if(!src.oddbutton)
+				src.emagged = 2 //Cleanbots are odd, this is here to ensure the "compromised" status updates properly.
+				src.oddbutton = 1
+				src.hacked = 1
+				usr << "<span class='warning'>You corrupt [src]'s cleaning software.</span>"
+			else if(!src.hacked)
+				usr << "<span class='userdanger'>[src] does not seem to respond to your repair code!</span>"
+			else
+				src.hacked = 0
+				src.emagged = 0
+				src.oddbutton = 0
+				usr << "<span class='notice'>[src]'s software has been reset!</span>"
 			src.updateUsrDialog()
 
 /obj/machinery/bot/cleanbot/attackby(obj/item/weapon/W, mob/user as mob)
@@ -288,23 +303,30 @@ text("<A href='?src=\ref[src];operation=oddbutton'>[src.oddbutton ? "Yes" : "No"
 	target_types += /obj/effect/decal/cleanable/vomit
 	target_types += /obj/effect/decal/cleanable/robot_debris
 	target_types += /obj/effect/decal/cleanable/crayon
+	target_types += /obj/effect/decal/cleanable/molten_item
+	target_types += /obj/effect/decal/cleanable/tomato_smudge
+	target_types += /obj/effect/decal/cleanable/egg_smudge
+	target_types += /obj/effect/decal/cleanable/pie_smudge
+	target_types += /obj/effect/decal/cleanable/flour
+	target_types += /obj/effect/decal/cleanable/ash
+	target_types += /obj/effect/decal/cleanable/greenglow
+	target_types += /obj/effect/decal/cleanable/dirt
 
 	if(src.blood)
 		target_types += /obj/effect/decal/cleanable/xenoblood/
 		target_types += /obj/effect/decal/cleanable/xenoblood/xgibs
 		target_types += /obj/effect/decal/cleanable/blood/
 		target_types += /obj/effect/decal/cleanable/blood/gibs/
-		target_types += /obj/effect/decal/cleanable/dirt
 		target_types += /obj/effect/decal/cleanable/trail_holder
 
 /obj/machinery/bot/cleanbot/proc/clean(var/obj/effect/decal/cleanable/target)
 	src.anchored = 1
 	src.icon_state = "cleanbot-c"
-	visible_message("\red [src] begins to clean up the [target]")
+	visible_message("\red [src] begins to clean up [target]")
 	src.cleaning = 1
 	spawn(50)
 		src.cleaning = 0
-		del(target)
+		qdel(target)
 		src.icon_state = "cleanbot[src.on]"
 		src.anchored = 0
 		src.target = null
@@ -324,20 +346,20 @@ text("<A href='?src=\ref[src];operation=oddbutton'>[src.oddbutton ? "Yes" : "No"
 	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
 	s.set_up(3, 1, src)
 	s.start()
-	del(src)
+	qdel(src)
 	return
 
 /obj/item/weapon/bucket_sensor/attackby(var/obj/item/W, mob/user as mob)
 	..()
 	if(istype(W, /obj/item/robot_parts/l_arm) || istype(W, /obj/item/robot_parts/r_arm))
 		user.drop_item()
-		del(W)
+		qdel(W)
 		var/turf/T = get_turf(src.loc)
 		var/obj/machinery/bot/cleanbot/A = new /obj/machinery/bot/cleanbot(T)
 		A.name = src.created_name
 		user << "<span class='notice'>You add the robot arm to the bucket and sensor assembly. Beep boop!</span>"
 		user.unEquip(src, 1)
-		del src
+		qdel(src)
 
 	else if (istype(W, /obj/item/weapon/pen))
 		var/t = copytext(stripped_input(user, "Enter new robot name", src.name, src.created_name),1,MAX_NAME_LEN)
