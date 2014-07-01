@@ -329,7 +329,7 @@ Auto Patrol: []"},
 				mode = SECBOT_HUNT
 				return
 
-			if(istype(src.target,/mob/living/carbon))
+			if(iscarbon(target) && target.canBeHandcuffed())
 				if (!src.target.handcuffed && !src.arrest_type)
 					playsound(src.loc, 'sound/weapons/handcuffs.ogg', 30, 1, -2)
 					mode = SECBOT_ARREST
@@ -698,9 +698,6 @@ Auto Patrol: []"},
 		if(istype(perp:wear_suit, /obj/item/clothing/suit/wizrobe))
 			threatcount += 2
 
-		if(perp.dna && perp.dna.mutantrace && perp.dna.mutantrace != "none")
-			threatcount += 2
-
 //Agent cards lower threatlevel when normal idchecking is off.
 		if((perp.wear_id && istype(perp:wear_id.GetID(), /obj/item/weapon/card/id/syndicate)) && src.idcheck)
 			threatcount -= 2
@@ -752,11 +749,6 @@ Auto Patrol: []"},
 			var/turf/T = get_turf(src)
 			M:loc = T
 */
-
-/obj/machinery/bot/ed209/proc/speak(var/message)
-	for(var/mob/O in hearers(src, null))
-		O.show_message("<span class='game say'><span class='name'>[src]</span> beeps, \"[message]\"",2)
-	return
 
 /obj/machinery/bot/ed209/explode()
 	walk_to(src,0)
@@ -972,14 +964,16 @@ Auto Patrol: []"},
 		if(6)
 			if(istype(W, /obj/item/stack/cable_coil))
 				var/obj/item/stack/cable_coil/coil = W
-				var/turf/T = get_turf(user)
+				if (coil.get_amount() < 1)
+					user << "<span class='warning'>You need one length of cable to wire the ED-209.</span>"
+					return
 				user << "<span class='notice'>You start to wire [src]...</span>"
-				sleep(40)
-				if(get_turf(user) == T)
-					coil.use(1)
-					build_step++
-					user << "<span class='notice'>You wire the ED-209 assembly.</span>"
-					name = "wired ED-209 assembly"
+				if (do_after(user, 40))
+					if (coil.get_amount() >= 1 && build_step == 6)
+						coil.use(1)
+						build_step = 7
+						user << "<span class='notice'>You wire the ED-209 assembly.</span>"
+						name = "wired ED-209 assembly"
 
 		if(7)
 			switch(lasercolor)

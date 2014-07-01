@@ -69,10 +69,11 @@
 		holyfuckingshit = new holyfuckingshit(src)
 		holyfuckingshit.parent = src
 		abilities += holyfuckingshit
+	abilities.Cut(abilities.len)
 
 /obj/item/clothing/suit/space/space_ninja/Del()
 	if(affecting)//To make sure the window is closed.
-		affecting << browse(null, "window=hack spideros")
+//		affecting << browse(null, "window=hack spideros")
 		remove_ninja_buttons()
 	if(AI)//If there are AIs present when the ninja kicks the bucket.
 		killai()
