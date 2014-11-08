@@ -43,10 +43,11 @@ ________________________________________________________________________________
 	min_cold_protection_temperature = GLOVES_MIN_TEMP_PROTECT
 	heat_protection = HANDS
 	max_heat_protection_temperature = GLOVES_MAX_TEMP_PROTECT
-	var/draining = 0
+//	var/draining = 0
+	var/draintarget
 	var/candrain = 0
-	var/mindrain = 200
-	var/maxdrain = 400
+//	var/mindrain = 200
+//	var/maxdrain = 400
 	var/obj/item/clothing/suit/space/space_ninja/parent = null
 
 /*
@@ -55,83 +56,89 @@ ________________________________________________________________________________
 	which would probably more efficient, but ninjas are pretty rare.
 	This was mostly introduced to keep ninja code from contaminating other code;
 	with this in place it would be easier to untangle the rest of it.
-
-	For the drain proc, see events/ninja.dm
 */
 /obj/item/clothing/gloves/space_ninja/Touch(var/atom/A,var/proximity)
-	if(!candrain || draining) return 0
-
-	var/mob/living/carbon/human/H = loc
-	if(!istype(H)) return 0 // what
-	if(!parent) return 0
-	if(isturf(A)) return 0
-
-	if(!proximity) // todo: you could add ninja stars or computer hacking here
+	if(!candrain)
+		draintarget = null
 		return 0
 
-	// steal energy from powered things
-	if(istype(A,/mob/living/silicon/robot))
-		A.add_fingerprint(H)
-		drain("CYBORG",A,parent)
-		return 1
-	if(istype(A,/obj/machinery/power/apc))
-		A.add_fingerprint(H)
-		drain("APC",A,parent)
-		return 1
-	if(istype(A,/obj/structure/cable))
-		A.add_fingerprint(H)
-		drain("WIRE",A,parent)
-		return 1
-	if(istype(A,/obj/structure/grille))
-		var/obj/structure/cable/C = locate() in A.loc
-		if(C)
-			drain("WIRE",C,parent)
-		return 1
-	if(istype(A,/obj/machinery/power/smes))
-		A.add_fingerprint(H)
-		drain("SMES",A,parent)
-		return 1
-	if(istype(A,/obj/mecha))
-		A.add_fingerprint(H)
-		drain("MECHA",A,parent)
-		return 1
+	var/mob/living/carbon/human/H = loc
+//	world << "hey look these gloves are on [loc]"
+	if(!istype(H)) return 0 // what
+//	world << "it has a type"
+	if(!parent) return 0
+//	world << "it has a parent"
+	if(!parent.affecting) return 0 //how does this happen
+//	world << "it has an affecting"
+	if(isturf(A)) return 0
+//	world << "you didn't click a turf"
+
+	if(!proximity) // todo: you could add ninja stars or computer hacking here
+		world << "proximity failure"
+		return 0
 
 	// download research
+	A.add_fingerprint(H)
 	if(istype(A,/obj/machinery/computer/rdconsole))
-		A.add_fingerprint(H)
-		drain("RESEARCH",A,parent)
+//		world << "rdconsole"
+//		drain("RESEARCH",A,parent)
 		return 1
-	if(istype(A,/obj/machinery/r_n_d/server))
-		A.add_fingerprint(H)
+	else if(istype(A,/obj/machinery/r_n_d/server))
+//		world << "rndserver"
 		var/obj/machinery/r_n_d/server/S = A
 		if(S.disabled)
 			return 1
 		if(S.shocked)
 			S.shock(H,50)
 			return 1
-		drain("RESEARCH",A,parent)
+//		drain("RESEARCH",A,parent)
 		return 1
 
 	// Move an AI into and out of things
-	if(!parent.s_control)
-		H << "<span class='alert'><b>ALERT:</b> Remote access channel disabled.</span>"
+	else if(!parent.s_control)
+		parent.affecting << "<span class='alert'><b>ALERT:</b> Remote access channel disabled.</span>"
 		return 0
-	if(istype(A,/mob/living/silicon/ai))
-		A.add_fingerprint(H)
+	else if(istype(A,/mob/living/silicon/ai))
 		parent.transfer_ai("AICORE", "NINJASUIT", A, H)
 		return 1
-	if(istype(A,/obj/structure/AIcore/deactivated))
-		A.add_fingerprint(H)
+	else if(istype(A,/obj/structure/AIcore/deactivated))
 		parent.transfer_ai("INACTIVE","NINJASUIT",A, H)
 		return 1
-	if(istype(A,/obj/machinery/computer/aifixer))
-		A.add_fingerprint(H)
+	else if(istype(A,/obj/machinery/computer/aifixer))
 		parent.transfer_ai("AIFIXER","NINJASUIT",A, H)
 		return 1
-
+	else if(istype(A,/mob/living/silicon/robot)||istype(A,/obj/machinery/power/apc)||istype(A,/obj/structure/cable)||istype(A,/obj/structure/grille)||istype(A,/obj/machinery/power/smes)||istype(A,/obj/mecha)||istype(A,/obj/item/weapon/stock_parts/cell))
+		parent.affecting << "<span class='notice'>Charging procedure underway...</span>"
+		draintarget = A
+		return 1
+// steal energy from powered things
+//	world << "draintarget is [A]"
+/*	if(istype(A,/mob/living/silicon/robot))
+//		drain("CYBORG",A,parent)
+		return 1
+	if(istype(A,/obj/machinery/power/apc))
+//		drain("APC",A,parent)
+		return 1
+	if(istype(A,/obj/structure/cable))
+//		drain("WIRE",A,parent)
+		return 1
+	if(istype(A,/obj/structure/grille))
+		var/obj/structure/cable/C = locate() in A.loc
+		if(C)
+			draintarget = C
+//			drain("WIRE",C,parent)
+		return 1
+	if(istype(A,/obj/machinery/power/smes))
+//		drain("SMES",A,parent)
+		return 1
+	if(istype(A,/obj/mecha))
+//		drain("MECHA",A,parent)
+		return 1*/
 
 //=======//ENERGY DRAIN PROCS//=======//
 
+//We're very sorry, but energy drain has been canceled due to sucking. It can now be found in ninja_suit/suit_power.dm.
+/*
 /obj/item/clothing/gloves/space_ninja/proc/drain(target_type as text, target, obj/suit)
 //Var Initialize
 	var/obj/item/clothing/suit/space/space_ninja/S = parent
@@ -355,16 +362,25 @@ ________________________________________________________________________________
 	G.draining = 0
 
 	return
+*/
 
 //=======//GENERAL PROCS//=======//
 
-/obj/item/clothing/gloves/space_ninja/proc/toggled()
-	set name = "Toggle Interaction"
-	set desc = "Toggles special interaction on or off."
-	set category = "Ninja Equip"
+/obj/item/clothing/gloves/space_ninja/attack_hand(mob/user as mob)
+	if (flags & NODROP)
+		user.visible_message("<span class='warning'>[user] claps his hands together!</span>",
+			"<span class='notice'>You clap your hands together to [candrain?"retract":"extend"] the contacts.</span>","You hear a click.")
+		toggled()
+	else
+		..()
 
-	var/mob/living/carbon/human/U = loc
-	U << "You <b>[candrain?"disable":"enable"]</b> special interaction."
+/obj/item/clothing/gloves/space_ninja/proc/toggled()
+/*	set name = "Toggle Interaction"
+	set desc = "Toggles special interaction on or off."
+	set category = "Ninja Equip"*/
+
+//	var/mob/living/carbon/human/U = loc
+//	U << "You <b>[candrain?"disable":"enable"]</b> special interaction."
 	candrain=!candrain
 
 /obj/item/clothing/gloves/space_ninja/examine()
@@ -376,7 +392,7 @@ ________________________________________________________________________________
 
 /obj/item/clothing/gloves/space_ninja/update_icon(var/power = 0)
 	icon_state = "s-ninja[power ? "n" : ""]"
-	item_state = "s-ninja[power ? "n" : ""]"
+	item_state = icon_state
 
 /*
 ===================================================================================
@@ -435,16 +451,16 @@ ________________________________________________________________________________
 		switch(chance)
 			if(1 to 50)//High chance of a regular name.
 				voice = "[rand(0,1)==1?pick(first_names_female):pick(first_names_male)] [pick(last_names)]"
-			if(51 to 80)//Smaller chance of a clown name.
-				voice = "[pick(clown_names)]"
-			if(81 to 90)//Small chance of a wizard name.
-				voice = "[pick(wizard_first)] [pick(wizard_second)]"
-			if(91 to 100)//Small chance of an existing crew name.
+			if(51 to 80)//Smaller chance of a crew name
 				var/names[] = new()
 				for(var/mob/living/carbon/human/M in player_list)
 					if(M==U||!M.client||!M.real_name)	continue
 					names.Add(M.real_name)
 				voice = !names.len ? "Cuban Pete" : pick(names)
+			if(81 to 90)//Small chance of a wizard name.
+				voice = "[pick(wizard_first)] [pick(wizard_second)]"
+			if(91 to 100)//Small chance of a fucking clown name THIS USED TO BE A 30% CHANCE FUCKING NINJA GODDAMN CODE.
+				voice = "[pick(clown_names)]"
 		U << "You are now mimicking <B>[voice]</B>."
 	else
 		U << "The voice synthesizer is [voice!="Unknown"?"now":"already"] deactivated."

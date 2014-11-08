@@ -729,9 +729,7 @@ atom/proc/GetTypeInAllContents(typepath)
 	var/delayfraction = round(delay/numticks)
 	var/turf/T = user.loc
 	var/holding = user.get_active_hand()
-	var/holdingnull = 1
-	if(holding)
-		holdingnull = 0
+	var/holdingnull = !holding
 
 	for(var/i = 0, i<numticks, i++)
 		sleep(delayfraction)

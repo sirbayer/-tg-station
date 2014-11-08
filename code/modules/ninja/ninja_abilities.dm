@@ -20,10 +20,10 @@ ________________________________________________________________________________
 	if (!parent || !parent.affecting)
 		return 0
 	if (parent.s_busy)
-		parent.affecting << "<span class='alert'>Suit is already busy, please wait.</span>"
+		parent.affecting << "<span class='alert'>OPFAIL: Suit is already busy.</span>"
 		return 0
 	if (cd)
-		parent.affecting << "<span class='alert'>ALERT: [src.aname] is not ready for use.</span>"
+		parent.affecting << "<span class='alert'>OPFAIL: [src.aname] is not ready for use.</span>"
 		return 0
 	var/thecheck = special_check()
 	if (thecheck)
@@ -33,7 +33,7 @@ ________________________________________________________________________________
 		parent.affecting << "<span class='alert'><B>ALERT:</B> Insufficient energy for operation.</span>"
 		return 0
 	if (checkstat && (parent.affecting.stat || parent.affecting.incorporeal_move))
-		parent.affecting << "<span class='alert'>You must be solid and conscious to do this.</span>"
+		parent.affecting << "<span class='alert'><B>ALERT:</B> Awareness/viscosity failure. Please wake up or solidify.</span>"
 		return 0
 	cd = ncd
 	return 1
@@ -87,7 +87,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	dest = get_teleport_loc(parent.affecting.loc,parent.affecting,9,1,3,1,0,1)
 	mobloc = get_turf(parent.affecting.loc)
 	if(!(dest&&istype(mobloc, /turf)))
-		return "<span class='alert'>ALERT: Unacceptable starting location. Cannot jaunt or shift from this terrain.</span>"
+		return "<span class='alert'>OPFAIL: Unacceptable starting location. Cannot jaunt or shift from this terrain.</span>"
 
 /obj/screen/ability/ninja/ninjajaunt/activate()
 	if(..())
@@ -102,7 +102,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 			parent.spark_system.start()
 			playsound(dest, 'sound/effects/phasein.ogg', 25, 1)
 			playsound(dest, "sparks", 50, 1)
-			anim(dest.loc,parent.affecting,'icons/mob/mob.dmi',,"phasein",,parent.affecting.dir)
+			anim(mobloc,src,'icons/mob/mob.dmi',,"phasein",,parent.affecting.dir)
 
 		spawn(0)
 			dest.kill_creatures(parent.affecting)//Any living mobs in teleport area are gibbed. Check turf procs for how it does it.
@@ -121,7 +121,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 	..()
 	//dest = ?????? WE NEED TO TARGET HERE
 	if(dest.density)
-		return "<span class='alert'>ALERT: Unacceptable end location. Cannot shift into solid objects.</span>"
+		return "<span class='alert'>OPFAIL: Unacceptable end location. Cannot shift into solid objects.</span>"
 
 //=======//EM PULSE//=======//
 //Disables nearby tech equipment.
@@ -147,9 +147,9 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 
 /obj/screen/ability/ninja/ninjablade/special_check()
 	if(blade_check())
-		return "<span class='alert'>ALERT: Energy blade is already active.</span>"
+		return "<span class='alert'>OPFAIL: Energy blade is already active.</span>"
 	if(parent.affecting.get_active_hand())
-		return "<span class='alert'>ALERT: Hand is already occupied.</span>"
+		return "<span class='alert'>OPFAIL: Hand is already occupied.</span>"
 
 /obj/screen/ability/ninja/ninjablade/activate()
 	if(..())
@@ -160,6 +160,7 @@ Not sure why this would be useful (it's not) but whatever. Ninjas need their smo
 
 /obj/screen/ability/ninja/ninjablade/maintain()
 	if (!parent || !parent.cell)
+		blade_kill()
 		del(src) //ha ha desperate measures
 	if(!parent.cell.use(acost))
 		blade_kill()
@@ -195,7 +196,7 @@ This could be a lot better but I'm too tired atm.*/
 		if(M.stat)	continue//Doesn't target corpses or paralyzed persons.
 		targets.Add(M)
 	if(!targets.len)
-		return "<span class='alert'>ALERT: No targets detected.</span>"
+		return "<span class='alert'>OPFAIL: No targets detected.</span>"
 
 /obj/screen/ability/ninja/ninjastar/activate()
 	if (..())

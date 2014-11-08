@@ -58,6 +58,7 @@
 	if(crit_fail)
 		usr << "\red This power cell seems to be faulty."
 
+/* Fucking Ninja gets into fucking everything god damn ridiculous
 /obj/item/weapon/stock_parts/cell/attack_self(mob/user as mob)
 	src.add_fingerprint(user)
 	if(ishuman(user))
@@ -67,6 +68,7 @@
 
 		SNG.drain("CELL",src,H.wear_suit)
 	return
+*/
 
 /obj/item/weapon/stock_parts/cell/attackby(obj/item/W, mob/user)
 	..()

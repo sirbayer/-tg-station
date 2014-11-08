@@ -30,8 +30,8 @@
 		//Main function variables.
 	var/s_initialized = 0//Suit starts off.
 	var/s_lock = 0
-	var/const/s_cost = 5.0//Base energy cost each ntick.
-	var/const/s_delay = 50.0//How fast the suit does certain things, lower is faster. Can be overridden in specific procs. Also determines adverse probability.
+	var/const/s_cost = 1.0//Base energy cost each ntick.
+	var/const/s_delay = 30.0//How fast the suit does certain things, lower is faster. Can be overridden in specific procs. Also determines adverse probability.
 	var/list/abilities
 
 		//Support function variables.
@@ -52,6 +52,7 @@
 /obj/item/clothing/suit/space/space_ninja/New()
 	..()
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/init//suit initialize verb
+	verbs += /obj/item/clothing/suit/space/space_ninja/proc/lock_suit
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/ai_instruction//for AIs
 	verbs += /obj/item/clothing/suit/space/space_ninja/proc/ai_holo
 	//verbs += /obj/item/clothing/suit/space/space_ninja/proc/display_verb_procs//DEBUG. Doesn't work.
@@ -60,7 +61,7 @@
 	spark_system.attach(src)
 	stored_research = new()//Stolen research initialize.
 	cell = new/obj/item/weapon/stock_parts/cell/high//The suit should *always* have a battery because so many things rely on it.
-	cell.charge = 9000//Starting charge should not be higher than maximum charge. It leads to problems with recharging.
+	cell.charge = 10000//Starting charge should not be higher than maximum charge. It leads to problems with recharging.
 	var/list/tempabil = typesof(/obj/screen/ability/ninja) //Time to awkwardly initialize abilities
 //	tempabil -= /obj/screen/ability/ninja
 	abilities = list()
@@ -80,6 +81,8 @@
 	if(hologram)//If there is a hologram
 		del(hologram.i_attached)//Delete it and the attached image.
 		del(hologram)
+	if(s_initialized)
+		processing_objects.Remove(src)
 	..()
 	return
 
@@ -142,24 +145,6 @@
 			U << "<span class='notice'>You slot \the [I] into \the [src].</span>"
 			updateUsrDialog()
 			return
-		else if(istype(I, /obj/item/weapon/stock_parts/cell))
-			if(I:maxcharge>cell.maxcharge&&n_gloves&&n_gloves.candrain)
-				affecting << "<span class='notice'>Higher maximum capacity detected.\nUpgrading...</span>"
-				if (n_gloves&&n_gloves.candrain&&do_after(U,s_delay))
-					U.drop_item()
-					I.loc = src
-					I:charge = min(I:charge+cell.charge, I:maxcharge)
-					var/obj/item/weapon/stock_parts/cell/old_cell = cell
-					old_cell.charge = 0
-					U.put_in_hands(old_cell)
-					old_cell.add_fingerprint(U)
-					old_cell.corrupt()
-					old_cell.updateicon()
-					cell = I
-					U << "<span class='notice'>Upgrade complete. Maximum capacity: <b>[cell.maxcharge]</b></span>"
-				else
-					U << "<span class='alert'><B>ALERT:</B> Procedure interrupted. Protocol terminated.</span>"
-			return
 		else if(istype(I, /obj/item/weapon/disk/tech_disk))//If it's a data disk, we want to copy the research on to the suit.
 			var/obj/item/weapon/disk/tech_disk/TD = I
 			if(TD.stored)//If it has something on it.
@@ -214,7 +199,7 @@
 		if (affecting.gender == FEMALE)
 			G = 1
 	icon_state = "s-ninja[s_initialized ? "n[G ? "f" : ""]" : ""]"
-	item_state = "s-ninja[s_initialized ? "n[G ? "f" : ""]" : ""]"
+	item_state = icon_state
 	if (n_gloves)
 		n_gloves.update_icon(s_initialized)
 
